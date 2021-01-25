@@ -4,6 +4,7 @@
     <div class="booking-form__rating">
       <Rating :value="rating" :reviewsCount="reviewsCount"></Rating>
     </div>
+    <div class="booking-form__date-picker"></div>
   </div>
 </template>
 
@@ -36,10 +37,12 @@ export default {
 .booking-form {
   max-width: 320px;
   width: 100%;
-  border: 1px solid $border;
+  // border: 1px solid $border;
   margin: auto;
   padding: 1.5rem;
   border-radius: 1.5rem;
+  background-color: #fff;
+  box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.1);
 
   &__price {
     font-size: 1.5rem;

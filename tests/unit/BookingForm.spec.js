@@ -11,6 +11,6 @@ describe('BookingForm.vue', () => {
     })
 
     const priceElement = wrapper.find('.booking-form__price')
-    expect(priceElement.text()).toBe(priceWithCurrency)
+    expect(priceElement.text()).toEqual(priceWithCurrency)
   })
 })
