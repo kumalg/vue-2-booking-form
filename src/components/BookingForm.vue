@@ -4,16 +4,19 @@
     <div class="booking-form__rating">
       <Rating :value="rating" :reviewsCount="reviewsCount"></Rating>
     </div>
-    <div class="booking-form__date-picker"></div>
+    <div class="booking-form__date-picker">
+      <DatePicker v-model:dateFrom="tempDateFrom" v-model:dateTo="tempDateTo"></DatePicker>
+    </div>
   </div>
 </template>
 
 <script>
 import currency from '@/filters/currency'
 import Rating from './Rating.vue'
+import DatePicker from './DatePicker.vue'
 
 export default {
-  components: { Rating },
+  components: { Rating, DatePicker },
   name: 'BookingForm',
   methods: {
     currency
@@ -28,6 +31,26 @@ export default {
     },
     reviewsCount: {
       type: Number
+    },
+    dateFrom: {
+      type: String
+    },
+    dateTo: {
+      type: String
+    }
+  },
+  data() {
+    return {
+      tempDateFrom: this.dateFrom,
+      tempDateTo: this.dateTo
+    }
+  },
+  watch: {
+    tempDateFrom(newValue) {
+      this.$emit('update:dateFrom', newValue)
+    },
+    tempDateTo(newValue) {
+      this.$emit('update:dateTo', newValue)
     }
   }
 }
@@ -37,7 +60,6 @@ export default {
 .booking-form {
   max-width: 320px;
   width: 100%;
-  // border: 1px solid $border;
   margin: auto;
   padding: 1.5rem;
   border-radius: 1.5rem;
@@ -48,6 +70,7 @@ export default {
     font-size: 1.5rem;
     font-weight: bold;
   }
+
   &__rating {
     margin-top: 8px;
   }

@@ -1,5 +1,14 @@
 <template>
-  <BookingForm :price="price" :rating="rating" :reviewsCount="reviewsCount"></BookingForm>
+  <div>
+    {{ form }}
+    <BookingForm
+      v-model:dateFrom="form.dateFrom"
+      v-model:dateTo="form.dateTo"
+      :price="form.price"
+      :rating="form.rating"
+      :reviewsCount="form.reviewsCount"
+    ></BookingForm>
+  </div>
 </template>
 
 <script>
@@ -7,14 +16,18 @@ import BookingForm from './components/BookingForm.vue'
 
 export default {
   name: 'App',
+  components: { BookingForm },
   data() {
     return {
-      price: 298,
-      rating: 3.5,
-      reviewsCount: 123
+      form: {
+        price: 298,
+        rating: 3.5,
+        reviewsCount: 123,
+        dateFrom: 'a',
+        dateTo: 'a'
+      }
     }
-  },
-  components: { BookingForm }
+  }
 }
 </script>
 
