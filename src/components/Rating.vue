@@ -4,7 +4,7 @@
       <div class="rating__stars__blank">
         <Icon v-for="i in max" :key="i" icon="star"></Icon>
       </div>
-      <div class="rating__stars__filled">
+      <div class="rating__stars__filled" :style="filledStarsStyle">
         <Icon v-for="i in max" :key="i" icon="starFill"></Icon>
       </div>
     </div>
@@ -24,11 +24,19 @@ export default {
     },
     value: {
       type: Number,
-      validator: prop => prop >= 0 && prop <= this.max
+      default: 0
+      // validator: prop => prop >= 0 && prop <= this.max
     },
     reviewsCount: {
       type: Number,
       validator: prop => prop >= 0
+    }
+  },
+  computed: {
+    filledStarsStyle() {
+      return {
+        width: `${(100 * Math.min(this.value, this.max)) / this.max}%`
+      }
     }
   }
 }
@@ -36,16 +44,34 @@ export default {
 
 <style lang="scss" scoped>
 .rating {
+  display: flex;
+  align-items: center;
+
   &__stars {
-    font-size: 0.625rem;
+    font-size: 0.75rem;
     position: relative;
 
     &__blank {
+      display: flex;
+      flex-wrap: nowrap;
+      color: rgb(200, 200, 200);
     }
+
     &__filled {
+      display: flex;
+      flex-wrap: nowrap;
+      position: absolute;
+      overflow: hidden;
+      top: 0;
+      left: 0;
+      color: $primary;
     }
   }
+
   &__reviews {
+    margin-left: 8px;
+    font-weight: bold;
+    font-size: 0.875rem;
   }
 }
 </style>
