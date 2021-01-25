@@ -36,15 +36,17 @@ export default {
 .booking-form {
   max-width: 320px;
   width: 100%;
-  border: 1px solid rgb(128, 128, 128);
+  border: 1px solid $border;
   margin: auto;
-  padding: 1rem;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
 
   &__price {
     font-size: 1.5rem;
     font-weight: bold;
   }
   &__rating {
+    margin-top: 8px;
   }
 }
 </style>

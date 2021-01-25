@@ -10,7 +10,7 @@ export default {
   data() {
     return {
       price: 298,
-      rating: 4.5,
+      rating: 3.5,
       reviewsCount: 123
     }
   },

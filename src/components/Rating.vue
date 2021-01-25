@@ -71,7 +71,9 @@ export default {
   &__reviews {
     margin-left: 8px;
     font-weight: bold;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: $text-secondary;
   }
 }
 </style>
