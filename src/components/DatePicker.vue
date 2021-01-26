@@ -1,28 +1,44 @@
 <template>
-  <button @click="previousMonth()">
-    <Icon icon="angleLeft"></Icon>
-  </button>
-  {{ selectedYear }} - {{ selectedMonth }}
-  <button @click="nextMonth()">
-    <Icon icon="angleRight"></Icon>
-  </button>
+  <div class="date-picker">
+    <div class="date-picker__inputs">
+      <div
+        @click="selectedDateType = 'dateFrom'"
+        :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateFrom' }]"
+      >
+        {{ dateFrom ? dateFrom.toString() : 'Check In' }}
+      </div>
+      <Icon icon="angleRight"></Icon>
+      <div
+        @click="selectedDateType = 'dateTo'"
+        :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateTo' }]"
+      >
+        {{ dateTo ? dateTo.toString() : 'Check Out' }}
+      </div>
+    </div>
 
-  <button @click="nextMonth()">
-    dateFrom
-  </button>
-  <button @click="nextMonth()">
-    dateFrom
-  </button>
-
-  <div class="date-picker__calendar">
-    <div
-      @click="selectDate(dateObj.date)"
-      v-for="dateObj in allVisibleDays"
-      :key="dateObj.date.toString()"
-      :class="calendarItemClassList(dateObj)"
-    >
-      <div class="date-picker__calendar__item__inner">
-        {{ dateObj.date.day }}
+    <div class="date-picker__popup">
+      <button @click="previousMonth()">
+        <Icon icon="angleLeft"></Icon>
+      </button>
+      {{ selectedYear }} - {{ selectedMonth }}
+      <button @click="nextMonth()">
+        <Icon icon="angleRight"></Icon>
+      </button>
+      <div class="date-picker__popup__calendar-container">
+        <transition name="calendar-slide">
+          <div class="date-picker__calendar" :key="`${selectedYear}-${selectedMonth}`">
+            <div
+              @click="selectDate(dateObj.date)"
+              v-for="dateObj in allVisibleDays"
+              :key="dateObj.date.toString()"
+              :class="calendarItemClassList(dateObj)"
+            >
+              <div class="date-picker__calendar__item__inner">
+                {{ dateObj.date.day }}
+              </div>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -45,11 +61,12 @@ export default {
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo,
       selectedYear: 2021,
-      selectedMonth: 1
+      selectedMonth: 1,
+      selectedDateType: null
     }
   },
   methods: {
-    calendarItemClassList({ otherMonth, selected, selectedFrom }) {
+    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo }) {
       return [
         'date-picker__calendar__item',
         {
@@ -60,6 +77,9 @@ export default {
         },
         {
           'date-picker__calendar__item--selected-from': selectedFrom
+        },
+        {
+          'date-picker__calendar__item--selected-to': selectedTo
         }
       ]
     },
@@ -86,7 +106,17 @@ export default {
       }
     },
     selectDate(date) {
-      this.tempDateFrom = this.dateFrom !== null && this.dateFrom.equals(date) ? null : date
+      if (this.selectedDateType === 'dateFrom') {
+        this.tempDateFrom = date
+        if (!this.tempDateTo) {
+          this.selectedDateType = 'dateTo'
+        }
+      } else if (this.selectedDateType === 'dateTo') {
+        this.tempDateTo = date
+        if (!this.tempDateFrom) {
+          this.selectedDateType = 'dateTo'
+        }
+      }
     },
     daysInMonth(year, month) {
       return new Date(year, month, 0).getDate()
@@ -120,8 +150,9 @@ export default {
       return allDays.map(d => {
         return {
           date: d,
-          selected: this.dateFrom !== null && this.dateFrom.lessThan(d),
+          selected: this.dateFrom !== null && this.dateTo !== null && this.dateFrom.lessThan(d) && this.dateTo.greaterThan(d),
           selectedFrom: this.dateFrom !== null && this.dateFrom.equals(d),
+          selectedTo: this.dateTo !== null && this.dateTo.equals(d),
           otherMonth: this.selectedYear !== d.year || this.selectedMonth !== d.month
         }
       })
@@ -139,22 +170,84 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.calendar-slide-enter-active,
+.calendar-slide-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.calendar-slide-enter-from {
+  transform: translatey(-100%);
+}
+
+.calendar-slide-leave-to {
+  transform: translatey(100%);
+}
+
+.calendar-slide-enter-from,
+.calendar-slide-leave-to {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .date-picker {
+  position: relative;
+
+  &__inputs {
+    height: 40px;
+    width: 100%;
+    display: flex;
+    border: 1px solid $border;
+    border-radius: 40px;
+    align-items: center;
+
+    &__input {
+      flex: 1;
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      cursor: pointer;
+
+      &--checked {
+        font-weight: bold;
+      }
+    }
+  }
+
+  &__popup {
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    position: absolute;
+    background: white;
+    box-shadow: 0 8px 48px -8px rgba(0, 0, 0, 0.2);
+    border-radius: 24px;
+    overflow: hidden;
+    padding: 24px;
+
+    &__calendar-container {
+      position: relative;
+      overflow: hidden;
+    }
+  }
+
   &__calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
 
     &__item {
       text-align: center;
-      cursor: pointer;
       font-size: 0.875rem;
       margin: 4px 0;
       box-sizing: border-box;
       position: relative;
+      cursor: pointer;
 
       &__inner {
         position: relative;
-        $size: 40px;
+        $size: 32px;
         height: $size;
         width: $size;
         margin: auto;
@@ -168,7 +261,17 @@ export default {
         transition-timing-function: ease;
       }
 
-      &:not(&--selected-from):hover &__inner {
+      &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transition: background-color 0.2s ease;
+      }
+
+      &:not(&--selected-from):not(&--selected-to):hover &__inner {
         background-color: rgba($primary, 0.1);
         color: $primary;
       }
@@ -185,27 +288,27 @@ export default {
         color: rgba($primary, 0.25);
       }
 
-      &--selected-from &__inner {
+      &--selected-from &__inner,
+      &--selected-to &__inner {
         font-weight: bold;
         color: #fff;
         background-color: $primary;
       }
 
       &--selected,
-      &--selected-from {
+      &--selected-from,
+      &--selected-to {
         &:before {
-          content: '';
-          position: absolute;
-          background: rgba($primary, 0.1);
-          top: 0;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          background-color: rgba($primary, 0.1);
         }
       }
 
       &--selected-from:before {
         left: 50%;
+      }
+
+      &--selected-to:before {
+        right: 50%;
       }
     }
   }

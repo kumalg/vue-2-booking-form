@@ -75,5 +75,9 @@ export default {
   &__rating {
     margin-top: 8px;
   }
+
+  &__date-picker {
+    margin-top: 16px;
+  }
 }
 </style>
