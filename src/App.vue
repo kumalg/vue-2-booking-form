@@ -23,8 +23,8 @@ export default {
         price: 298,
         rating: 3.5,
         reviewsCount: 123,
-        dateFrom: 'a',
-        dateTo: 'a'
+        dateFrom: null,
+        dateTo: null
       }
     }
   }

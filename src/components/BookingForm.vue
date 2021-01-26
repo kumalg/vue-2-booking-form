@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import DatePickerDate from '@/filters/DatePickerDate'
 import currency from '@/filters/currency'
 import Rating from './Rating.vue'
 import DatePicker from './DatePicker.vue'
@@ -33,10 +34,10 @@ export default {
       type: Number
     },
     dateFrom: {
-      type: String
+      type: DatePickerDate
     },
     dateTo: {
-      type: String
+      type: DatePickerDate
     }
   },
   data() {
