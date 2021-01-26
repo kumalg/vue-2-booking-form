@@ -5,36 +5,39 @@
         @click="selectedDateType = 'dateFrom'"
         :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateFrom' }]"
       >
-        {{ dateFrom ? dateFrom.toString() : 'Check In' }}
+        {{ dateFrom ? dateFrom.format('D MMM YYYY') : 'Check In' }}
       </div>
       <Icon icon="angleRight"></Icon>
       <div
         @click="selectedDateType = 'dateTo'"
         :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateTo' }]"
       >
-        {{ dateTo ? dateTo.toString() : 'Check Out' }}
+        {{ dateTo ? dateTo.format('D MMM YYYY') : 'Check Out' }}
       </div>
     </div>
 
     <div class="date-picker__popup">
-      <button @click="previousMonth()">
-        <Icon icon="angleLeft"></Icon>
-      </button>
-      {{ selectedYear }} - {{ selectedMonth }}
-      <button @click="nextMonth()">
-        <Icon icon="angleRight"></Icon>
-      </button>
+      <div class="date-picker__popup__header">
+        <button @click="previousMonth()">
+          <Icon icon="angleLeft"></Icon>
+        </button>
+        <div class="date-picker__popup__header__month">{{ currentMonth.format('MMMM YYYY') }}</div>
+        <button @click="nextMonth()">
+          <Icon icon="angleRight"></Icon>
+        </button>
+      </div>
+
       <div class="date-picker__popup__calendar-container">
         <transition name="calendar-slide">
-          <div class="date-picker__calendar" :key="`${selectedYear}-${selectedMonth}`">
+          <div class="date-picker__calendar" :key="currentMonth.format('MM-YYYY')">
             <div
-              @click="selectDate(dateObj.date)"
+              @click="setDate(dateObj.date)"
               v-for="dateObj in allVisibleDays"
-              :key="dateObj.date.toString()"
+              :key="dateObj.date.format('DD-MM-YYYY')"
               :class="calendarItemClassList(dateObj)"
             >
               <div class="date-picker__calendar__item__inner">
-                {{ dateObj.date.day }}
+                {{ dateObj.date.date() }}
               </div>
             </div>
           </div>
@@ -45,7 +48,15 @@
 </template>
 
 <script>
+import dayjs from 'dayjs'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+import objectSupport from 'dayjs/plugin/objectSupport'
 import DatePickerDate from '@/filters/DatePickerDate'
+
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isSameOrBefore)
+dayjs.extend(objectSupport)
 
 export default {
   props: {
@@ -60,12 +71,15 @@ export default {
     return {
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo,
-      selectedYear: 2021,
-      selectedMonth: 1,
+      currentMonth: this.getInitialMonth(),
       selectedDateType: null
     }
   },
   methods: {
+    getInitialMonth() {
+      const existedDate = this.dateFrom || this.dateTo
+      return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month }) : dayjs().startOf('month')
+    },
     calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo }) {
       return [
         'date-picker__calendar__item',
@@ -83,77 +97,73 @@ export default {
         }
       ]
     },
-    setDateFrom(val) {
-      this.tempDateFrom = new DatePickerDate(2021, val, 25)
-    },
-    setDateTo(val) {
-      this.tempDateTo = new DatePickerDate(2021, val, 25)
-    },
     previousMonth() {
-      if (this.selectedMonth <= 1) {
-        this.selectedMonth = 12
-        this.selectedYear--
-      } else {
-        this.selectedMonth--
-      }
+      this.currentMonth = this.currentMonth.subtract(1, 'month')
     },
     nextMonth() {
-      if (this.selectedMonth >= 12) {
-        this.selectedMonth = 1
-        this.selectedYear++
-      } else {
-        this.selectedMonth++
-      }
+      this.currentMonth = this.currentMonth.add(1, 'month')
     },
-    selectDate(date) {
+    setDate(date) {
       if (this.selectedDateType === 'dateFrom') {
-        this.tempDateFrom = date
-        if (!this.tempDateTo) {
-          this.selectedDateType = 'dateTo'
-        }
+        this.setDateFrom(date)
       } else if (this.selectedDateType === 'dateTo') {
-        this.tempDateTo = date
-        if (!this.tempDateFrom) {
-          this.selectedDateType = 'dateTo'
-        }
+        this.setDateTo(date)
       }
     },
-    daysInMonth(year, month) {
-      return new Date(year, month, 0).getDate()
+    setDateFrom(date) {
+      if (this.dateTo && this.dateTo.isBefore(date)) {
+        this.setDateTo(date)
+      } else {
+        this.tempDateFrom = date
+      }
+      this.selectedDateType = 'dateTo'
+    },
+    setDateTo(date) {
+      if (this.dateFrom && this.dateFrom.isAfter(date)) {
+        this.tempDateTo = null
+        this.setDateFrom(date)
+      } else {
+        this.tempDateTo = date
+      }
+      if (!this.dateFrom) {
+        this.selectedDateType = 'dateFrom'
+      }
     }
   },
   computed: {
-    prevMonthDays() {
-      const currentMonthDate = new Date(this.selectedYear, this.selectedMonth, 1)
-      const prevMonthDate = new Date(currentMonthDate.setMonth(currentMonthDate.getMonth() - 1))
-      const needsDays = Math.max(prevMonthDate.getDay() - 1, 0)
-      const prevMonthDays = this.daysInMonth(prevMonthDate.getYear(), prevMonthDate.getMonth() + 1)
-      const array = Array.from({ length: prevMonthDays }, (_, i) => i + 1)
-      return array
-        .slice(Math.max(array.length - needsDays, 0))
-        .map(day => new DatePickerDate(prevMonthDate.getYear(), prevMonthDate.getMonth() + 1, day))
+    previousMonthDays() {
+      const previousMonth = this.currentMonth.subtract(1, 'month')
+      const previousMonthDays = previousMonth.daysInMonth()
+      const needsDays = Math.max(this.currentMonth.day() - 1, 0)
+      const shift = previousMonthDays - needsDays + 1
+
+      return Array.from({ length: needsDays }, (_, i) => i + shift).map(day =>
+        dayjs({ year: previousMonth.year(), month: previousMonth.month(), day })
+      )
     },
-    daysInSelectedMonth() {
-      const days = this.daysInMonth(this.selectedYear, this.selectedMonth)
-      return Array.from({ length: days }, (_, i) => i + 1).map(
-        day => new DatePickerDate(this.selectedYear, this.selectedMonth, day)
+    currentMonthDays() {
+      const days = this.currentMonth.daysInMonth()
+      return Array.from({ length: days }, (_, i) => i + 1).map(day =>
+        dayjs({ year: this.currentMonth.year(), month: this.currentMonth.month(), day })
       )
     },
     nextMonthDays() {
-      const days = 7 * 6 - this.prevMonthDays.length - this.daysInSelectedMonth.length
-      return Array.from({ length: days }, (_, i) => i + 1).map(
-        day => new DatePickerDate(this.selectedYear, this.selectedMonth + 1, day)
+      const nextMonth = this.currentMonth.add(1, 'month')
+      const needsDays = 7 * 6 - this.previousMonthDays.length - this.currentMonthDays.length
+
+      return Array.from({ length: needsDays }, (_, i) => i + 1).map(day =>
+        dayjs({ year: nextMonth.year(), month: nextMonth.month(), day })
       )
     },
     allVisibleDays() {
-      const allDays = [...this.prevMonthDays, ...this.daysInSelectedMonth, ...this.nextMonthDays]
+      const allDays = [...this.previousMonthDays, ...this.currentMonthDays, ...this.nextMonthDays]
       return allDays.map(d => {
         return {
           date: d,
-          selected: this.dateFrom !== null && this.dateTo !== null && this.dateFrom.lessThan(d) && this.dateTo.greaterThan(d),
-          selectedFrom: this.dateFrom !== null && this.dateFrom.equals(d),
-          selectedTo: this.dateTo !== null && this.dateTo.equals(d),
-          otherMonth: this.selectedYear !== d.year || this.selectedMonth !== d.month
+          selected: this.dateFrom?.isSameOrBefore(d, 'day') && this.dateTo?.isSameOrAfter(d, 'day'),
+          selectedFrom: this.dateFrom?.isSame(d, 'day'),
+          selectedTo: this.dateTo?.isSame(d, 'day'),
+          otherMonth: !this.currentMonth.isSame(d, 'month')
         }
       })
     }
@@ -226,6 +236,16 @@ export default {
     border-radius: 24px;
     overflow: hidden;
     padding: 24px;
+
+    &__header {
+      display: flex;
+      align-items: center;
+
+      &__month {
+        flex: 1;
+        text-align: center;
+      }
+    }
 
     &__calendar-container {
       position: relative;
