@@ -1,5 +1,11 @@
 # vue-3-booking-form
 
+## Demo
+
+Demo available on:
+
+<https://vue-3-booking-form.firebaseapp.com>
+
 ![vue-3-booking-form/thumb.png](https://github.com/kumalg/vue-3-booking-form/blob/master/thumb.png)
 
 ## Project setup
