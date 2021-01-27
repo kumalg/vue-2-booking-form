@@ -1,5 +1,5 @@
 <template>
-  <div class="date-picker">
+  <div class="date-picker" tabindex="1" @focus="show = true" @blur="show = false">
     <div class="date-picker__inputs">
       <div
         @click="selectedDateType = 'dateFrom'"
@@ -26,12 +26,14 @@
       </div>
     </div>
 
-    <div class="date-picker__popup">
+    <div v-show="show" class="date-picker__popup">
       <div class="date-picker__popup__header">
         <button @click="previousMonth()">
           <Icon icon="angleLeft"></Icon>
         </button>
-        <div class="date-picker__popup__header__month">{{ currentMonth.format('MMMM YYYY') }}</div>
+        <div class="date-picker__popup__header__month">
+          {{ currentMonth.format('MMMM YYYY') }}
+        </div>
         <button @click="nextMonth()">
           <Icon icon="angleRight"></Icon>
         </button>
@@ -64,13 +66,14 @@
 </template>
 
 <script>
-// import 'dayjs/locale/pl'
+import 'dayjs/locale/pl'
 import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isToday from 'dayjs/plugin/isToday'
 import localeData from 'dayjs/plugin/localeData'
-// import updateLocale from 'dayjs/plugin/updateLocale'
+// import localizedFormat from 'dayjs/plugin/localizedFormat'
+import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
 import DatePickerDate from '@/filters/DatePickerDate'
 
@@ -78,13 +81,12 @@ dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isToday)
 dayjs.extend(localeData)
+// dayjs.extend(localizedFormat)
 dayjs.extend(objectSupport)
-// dayjs.extend(updateLocale)
+dayjs.extend(updateLocale)
 // dayjs.locale('pl')
 // dayjs.updateLocale('en', {
-//   week: {
-//     dow: 1
-//   }
+//   weekStart: 1
 // })
 
 export default {
@@ -102,7 +104,8 @@ export default {
       tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
       weekdays: this.getWeekdays(),
-      selectedDateType: null
+      selectedDateType: null,
+      show: false
     }
   },
   methods: {
@@ -111,7 +114,7 @@ export default {
       return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month }) : dayjs().startOf('month')
     },
     getWeekdays() {
-      return dayjs.weekdaysShort()
+      return dayjs.weekdaysShort(true)
     },
     previousMonth() {
       this.currentMonth = this.currentMonth.subtract(1, 'month')
@@ -172,7 +175,7 @@ export default {
       const year = previousMonth.year()
       const month = previousMonth.month()
       const days = previousMonth.daysInMonth()
-      const needsDays = Math.max(this.currentMonth.day(), 0)
+      const needsDays = Math.max(this.currentMonth.day() - dayjs.localeData().firstDayOfWeek(), 0)
       const shift = days - needsDays + 1
 
       return Array.from({ length: needsDays }, (_, i) => i + shift).map(day => dayjs({ year, month, day }))
@@ -243,6 +246,7 @@ export default {
 
 .date-picker {
   position: relative;
+  min-width: 256px;
 
   &__inputs {
     height: 40px;
