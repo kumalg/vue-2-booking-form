@@ -1,69 +1,72 @@
 <template>
-  <div class="date-picker" tabindex="1" @focus="show = true" @blur="show = false">
+  <div class="date-picker" tabindex="1" @focus="open()" @blur="hide()">
     <div class="date-picker__inputs">
       <div
-        @click="selectedDateType = 'dateFrom'"
-        :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateFrom' }]"
+        @click="selectDateFrom()"
+        :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
       >
-        <div v-if="dateFrom" class="date-picker__inputs__input__value">
+        <div v-if="dateFrom" class="date-picker__input__value">
           {{ dateFrom.format('D MMM YYYY') }}
         </div>
-        <div v-else-if="dateFromPlaceholder" class="date-picker__inputs__input__placeholder">
+        <div v-else-if="dateFromPlaceholder" class="date-picker__input__placeholder">
           {{ dateFromPlaceholder }}
         </div>
-        <button v-show="dateFrom" @mousedown.prevent @click.prevent="tempDateFrom = null"><Icon icon="crossSmall" /></button>
+        <span v-show="dateFrom" @mousedown.prevent @click.prevent="tempDateFrom = null" class="date-picker__input__clear">
+          <Icon icon="crossSmall" />
+        </span>
       </div>
       <Icon icon="arrowRight"></Icon>
-      <div
-        @click="selectedDateType = 'dateTo'"
-        :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateTo' }]"
-      >
-        <div v-if="dateTo" class="date-picker__inputs__input__value">
+      <div @click="selectDateTo()" :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]">
+        <div v-if="dateTo" class="date-picker__input__value">
           {{ dateTo.format('D MMM YYYY') }}
         </div>
-        <div v-else-if="dateToPlaceholder" class="date-picker__inputs__input__placeholder">
+        <div v-else-if="dateToPlaceholder" class="date-picker__input__placeholder">
           {{ dateToPlaceholder }}
         </div>
-        <button v-show="dateTo" @mousedown.prevent @click.prevent="tempDateTo = null"><Icon icon="crossSmall" /></button>
+        <span v-show="dateTo" @mousedown.prevent @click.prevent="tempDateTo = null" class="date-picker__input__clear">
+          <Icon icon="crossSmall" />
+        </span>
       </div>
     </div>
 
-    <div v-show="show" class="date-picker__popup" @mousedown.prevent>
-      <div class="date-picker__popup__header">
-        <button @click="previousMonth()">
-          <Icon icon="angleLeft"></Icon>
-        </button>
-        <div class="date-picker__popup__header__month">
-          {{ currentMonth.format('MMMM YYYY') }}
+    <transition name="popup-fade">
+      <div v-show="opened" class="date-picker__popup" @mousedown.prevent>
+        <div class="date-picker__popup__header">
+          <button @click="previousMonth()">
+            <Icon icon="angleLeft"></Icon>
+          </button>
+          <div class="date-picker__popup__header__month">
+            {{ currentMonth.format('MMMM YYYY') }}
+          </div>
+          <button @click="nextMonth()">
+            <Icon icon="angleRight"></Icon>
+          </button>
         </div>
-        <button @click="nextMonth()">
-          <Icon icon="angleRight"></Icon>
-        </button>
-      </div>
 
-      <div class="date-picker__popup__weekdays">
-        <div class="date-picker__popup__weekdays__day" v-for="weekday in weekdays" :key="weekday">
-          {{ weekday }}
+        <div class="date-picker__popup__weekdays">
+          <div class="date-picker__popup__weekdays__day" v-for="weekday in weekdays" :key="weekday">
+            {{ weekday }}
+          </div>
         </div>
-      </div>
 
-      <div class="date-picker__popup__calendar-container">
-        <transition name="calendar-slide">
-          <div class="date-picker__calendar" :key="currentMonth.format('MM-YYYY')">
-            <div
-              @click="setDate(dateObj.date)"
-              v-for="dateObj in allVisibleDays"
-              :key="dateObj.date.format('DD-MM-YYYY')"
-              :class="calendarItemClassList(dateObj)"
-            >
-              <div class="date-picker__calendar__item__inner">
-                {{ dateObj.date.date() }}
+        <div class="date-picker__popup__calendar-container">
+          <transition name="calendar-slide">
+            <div class="date-picker__calendar" :key="currentMonth.format('MM-YYYY')">
+              <div
+                @click="setDate(dateObj.date)"
+                v-for="dateObj in allVisibleDays"
+                :key="dateObj.date.format('DD-MM-YYYY')"
+                :class="calendarItemClassList(dateObj)"
+              >
+                <div class="date-picker__calendar__item__inner">
+                  {{ dateObj.date.date() }}
+                </div>
               </div>
             </div>
-          </div>
-        </transition>
+          </transition>
+        </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -86,6 +89,12 @@ dayjs.extend(objectSupport)
 dayjs.extend(updateLocale)
 dayjs.locale('pl')
 
+const SelectedTypes = {
+  NONE: 'none',
+  DATE_FROM: 'date_from',
+  DATE_TO: 'date_to'
+}
+
 export default {
   props: {
     dateFrom: {
@@ -103,15 +112,30 @@ export default {
   },
   data() {
     return {
+      SelectedTypes,
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
       weekdays: this.getWeekdays(),
-      selectedDateType: null,
-      show: false
+      selectedDateType: SelectedTypes.NONE,
+      opened: false
     }
   },
   methods: {
+    open() {
+      if (this.opened) return
+      this.opened = true
+    },
+    hide() {
+      if (!this.opened) return
+      this.opened = false
+    },
+    selectDateFrom() {
+      this.selectedDateType = SelectedTypes.DATE_FROM
+    },
+    selectDateTo() {
+      this.selectedDateType = SelectedTypes.DATE_TO
+    },
     getInitialMonth() {
       const existedDate = this.dateFrom || this.dateTo
       return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month }) : dayjs().startOf('month')
@@ -126,9 +150,9 @@ export default {
       this.currentMonth = this.currentMonth.add(1, 'month')
     },
     setDate(date) {
-      if (this.selectedDateType === 'dateFrom') {
+      if (this.selectedDateType === SelectedTypes.DATE_FROM) {
         this.setDateFrom(date)
-      } else if (this.selectedDateType === 'dateTo') {
+      } else if (this.selectedDateType === SelectedTypes.DATE_TO) {
         this.setDateTo(date)
       }
     },
@@ -139,7 +163,7 @@ export default {
       } else {
         this.tempDateFrom = date
       }
-      this.selectedDateType = 'dateTo'
+      this.selectedDateType = SelectedTypes.DATE_TO
     },
     setDateTo(date) {
       if (this.dateFrom && this.dateFrom.isAfter(date)) {
@@ -149,7 +173,7 @@ export default {
         this.tempDateTo = date
       }
       if (!this.dateFrom) {
-        this.selectedDateType = 'dateFrom'
+        this.selectedDateType = SelectedTypes.DATE_FROM
       }
     },
     calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today }) {
@@ -217,32 +241,52 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.calendar-slide-enter-active,
-.calendar-slide-leave-active {
-  @include transition((opacity, transform));
+.popup-fade {
+  &-enter-active,
+  &-leave-active {
+    @include transition((transform, opacity));
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
 }
 
-.calendar-slide-enter-from {
-  transform: translatey(-100%);
-}
+.calendar-slide {
+  &-enter-active,
+  &-leave-active {
+    @include transition((opacity, transform));
+  }
 
-.calendar-slide-leave-to {
-  transform: translatey(100%);
-}
+  &-enter-from {
+    transform: translateY(-100%);
+  }
 
-.calendar-slide-enter-from,
-.calendar-slide-leave-to {
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  &-leave-to {
+    transform: translateY(100%);
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .date-picker {
   position: relative;
   min-width: 320px;
+  outline: none;
+
+  &:focus &__inputs {
+    border-color: rgba($primary, 0.5);
+  }
 
   &__inputs {
     height: 40px;
@@ -251,49 +295,49 @@ export default {
     border: 1px solid $border;
     border-radius: 40px;
     align-items: center;
+    @include transition((border-color));
+  }
 
-    &__input {
-      flex: 1;
-      margin: 4px 8px;
-      padding: 4px 8px;
-      border-radius: 40px;
-      font-size: 0.875rem;
+  &__input {
+    flex: 1;
+    margin: 4px 8px;
+    padding: 4px 8px;
+    border-radius: 40px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    @include transition((color, background-color));
+    display: flex;
+    align-items: center;
+
+    &.--checked {
+      background-color: rgba($primary, 0.1);
+    }
+
+    &.--checked &__placeholder {
+      color: rgba($primary, 0.5);
+    }
+
+    &.--checked &__value {
+      color: $primary;
+    }
+
+    &__placeholder {
+      color: $text-secondary;
+    }
+
+    &__clear {
+      margin-left: auto;
+      background-color: transparent;
+      border: none;
+      font-size: 1rem;
+      line-height: 0;
+      padding: 0;
       cursor: pointer;
-      @include transition((color, background-color));
-      display: flex;
-      align-items: center;
-
-      &--checked {
-        background-color: rgba($primary, 0.1);
-      }
-
-      &--checked &__placeholder {
-        color: rgba($primary, 0.5);
-      }
-
-      &--checked &__value {
-        color: $primary;
-      }
-
-      &__placeholder {
-        color: $text-secondary;
-      }
-
-      button {
-        margin-left: auto;
-        background-color: transparent;
-        border: none;
-        font-size: 1rem;
-        line-height: 0;
-        padding: 0;
-        cursor: pointer;
-        width: 1.25rem;
-        height: 1.25rem;
-        // background-color: #fff;
-        border-radius: 1rem;
-        color: $text-secondary;
-        // box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      }
+      // padding: 0.25rem;
+      // background-color: #fff;
+      border-radius: 1rem;
+      color: $text-secondary;
+      // box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
   }
 
