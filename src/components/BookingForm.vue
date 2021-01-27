@@ -5,7 +5,12 @@
       <Rating :value="rating" :reviewsCount="reviewsCount"></Rating>
     </div>
     <div class="booking-form__date-picker">
-      <DatePicker v-model:dateFrom="tempDateFrom" v-model:dateTo="tempDateTo"></DatePicker>
+      <DatePicker
+        v-model:dateFrom="tempDateFrom"
+        v-model:dateTo="tempDateTo"
+        :dateFromPlaceholder="dateFromPlaceholder"
+        :dateToPlaceholder="dateToPlaceholder"
+      ></DatePicker>
     </div>
   </div>
 </template>
@@ -38,6 +43,21 @@ export default {
     },
     dateTo: {
       type: DatePickerDate
+    },
+    dateFromPlaceholder: {
+      type: String
+    },
+    dateToPlaceholder: {
+      type: String
+    },
+    minDate: {
+      type: DatePickerDate
+    },
+    maxDate: {
+      type: DatePickerDate
+    },
+    excludeDates: {
+      type: Array
     }
   },
   data() {

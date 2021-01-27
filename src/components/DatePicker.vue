@@ -8,8 +8,8 @@
         <div v-if="dateFrom" class="date-picker__inputs__input__value">
           {{ dateFrom.format('D MMM YYYY') }}
         </div>
-        <div v-else class="date-picker__inputs__input__placeholder">
-          Check In
+        <div v-else-if="dateFromPlaceholder" class="date-picker__inputs__input__placeholder">
+          {{ dateFromPlaceholder }}
         </div>
       </div>
       <Icon icon="angleRight"></Icon>
@@ -18,10 +18,10 @@
         :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateTo' }]"
       >
         <div v-if="dateTo" class="date-picker__inputs__input__value">
-          {{ dateTo?.format('D MMM YYYY') }}
+          {{ dateTo.format('D MMM YYYY') }}
         </div>
-        <div v-else class="date-picker__inputs__input__placeholder">
-          Check Out
+        <div v-else-if="dateToPlaceholder" class="date-picker__inputs__input__placeholder">
+          {{ dateToPlaceholder }}
         </div>
       </div>
     </div>
@@ -72,7 +72,6 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isToday from 'dayjs/plugin/isToday'
 import localeData from 'dayjs/plugin/localeData'
-// import localizedFormat from 'dayjs/plugin/localizedFormat'
 import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
 import DatePickerDate from '@/filters/DatePickerDate'
@@ -81,13 +80,9 @@ dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isToday)
 dayjs.extend(localeData)
-// dayjs.extend(localizedFormat)
 dayjs.extend(objectSupport)
 dayjs.extend(updateLocale)
-// dayjs.locale('pl')
-// dayjs.updateLocale('en', {
-//   weekStart: 1
-// })
+dayjs.locale('pl')
 
 export default {
   props: {
@@ -96,6 +91,12 @@ export default {
     },
     dateTo: {
       type: DatePickerDate
+    },
+    dateFromPlaceholder: {
+      type: String
+    },
+    dateToPlaceholder: {
+      type: String
     }
   },
   data() {
@@ -152,19 +153,11 @@ export default {
       return [
         'date-picker__calendar__item',
         {
-          'date-picker__calendar__item--other-month': otherMonth
-        },
-        {
-          'date-picker__calendar__item--selected': selected
-        },
-        {
-          'date-picker__calendar__item--selected-from': selectedFrom
-        },
-        {
-          'date-picker__calendar__item--selected-to': selectedTo
-        },
-        {
-          'date-picker__calendar__item--today': today
+          '--other-month': otherMonth,
+          '--selected': selected,
+          '--selected-from': selectedFrom,
+          '--selected-to': selectedTo,
+          '--today': today
         }
       ]
     }
@@ -371,46 +364,46 @@ export default {
         @include transition((background-color));
       }
 
-      &:not(&--selected-from):not(&--selected-to):hover &__inner {
+      &:not(.--selected-from):not(.--selected-to):hover &__inner {
         background-color: rgba($primary, 0.1);
         color: $primary;
       }
 
-      &--today &__inner {
+      &.--today &__inner {
         border: 2px solid rgba($primary, 0.5);
         color: $primary;
       }
 
-      &--other-month &__inner {
+      &.--other-month &__inner {
         color: $border;
       }
 
-      &--selected &__inner {
+      &.--selected &__inner {
         color: $primary;
       }
 
-      &--other-month#{ & }--selected &__inner {
+      &.--other-month.--selected &__inner {
         color: rgba($primary, 0.25);
       }
 
-      &--selected-from &__inner,
-      &--selected-to &__inner {
+      &.--selected-from &__inner,
+      &.--selected-to &__inner {
         font-weight: bold;
         color: #fff;
         background-color: $primary;
       }
 
-      &--selected {
+      &.--selected {
         &:before {
           background-color: rgba($primary, 0.1);
         }
       }
 
-      &--selected-from:before {
+      &.--selected-from:before {
         left: 50%;
       }
 
-      &--selected-to:before {
+      &.--selected-to:before {
         right: 50%;
       }
     }

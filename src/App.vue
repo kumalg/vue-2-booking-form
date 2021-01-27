@@ -1,9 +1,11 @@
 <template>
   <div>
-    {{ form }}
+    <!-- {{ form }} -->
     <BookingForm
       v-model:dateFrom="form.dateFrom"
       v-model:dateTo="form.dateTo"
+      dateFromPlaceholder="Przyjazd"
+      dateToPlaceholder="Wyjazd"
       :price="form.price"
       :rating="form.rating"
       :reviewsCount="form.reviewsCount"

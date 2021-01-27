@@ -1,5 +1,7 @@
 # vue-3-booking-form
 
+![vue-3-booking-form/thumb.png](https://github.com/kumalg/vue-3-booking-form/thumb.png)
+
 ## Project setup
 
 ```
