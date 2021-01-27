@@ -1,9 +1,12 @@
 <template>
-  <div class="date-picker" tabindex="1" @focus="open()" @blur="hide()">
+  <div :class="['date-picker', { '--opened': opened }]" @click="open()">
     <div class="date-picker__inputs">
       <div
-        @click="selectDateFrom()"
-        :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
+        ref="dateFromElement"
+        tabindex="1"
+        @focus="selectDateFrom()"
+        @blur="hide($event)"
+        :class="['date-picker__input i1', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
       >
         <div v-if="dateFrom" class="date-picker__input__value">
           {{ dateFrom.format('D MMM YYYY') }}
@@ -16,7 +19,13 @@
         </span>
       </div>
       <Icon icon="arrowRight"></Icon>
-      <div @click="selectDateTo()" :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]">
+      <div
+        ref="dateToElement"
+        tabindex="1"
+        @focus="selectDateTo()"
+        @blur="hide($event)"
+        :class="['date-picker__input i2', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]"
+      >
         <div v-if="dateTo" class="date-picker__input__value">
           {{ dateTo.format('D MMM YYYY') }}
         </div>
@@ -90,7 +99,6 @@ dayjs.extend(updateLocale)
 dayjs.locale('pl')
 
 const SelectedTypes = {
-  NONE: 'none',
   DATE_FROM: 'date_from',
   DATE_TO: 'date_to'
 }
@@ -117,7 +125,7 @@ export default {
       tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
       weekdays: this.getWeekdays(),
-      selectedDateType: SelectedTypes.NONE,
+      selectedDateType: null,
       opened: false
     }
   },
@@ -125,16 +133,25 @@ export default {
     open() {
       if (this.opened) return
       this.opened = true
+
+      if (!this.selectedDateType) {
+        this.$refs.dateFromElement.focus()
+      }
     },
-    hide() {
-      if (!this.opened) return
+    hide(event) {
+      const newFocused = event.relatedTarget
+      if (!this.opened || newFocused === this.$refs.dateFromElement || newFocused === this.$refs.dateToElement) return
+
+      this.selectedDateType = null
       this.opened = false
     },
     selectDateFrom() {
       this.selectedDateType = SelectedTypes.DATE_FROM
+      this.open()
     },
     selectDateTo() {
       this.selectedDateType = SelectedTypes.DATE_TO
+      this.open()
     },
     getInitialMonth() {
       const existedDate = this.dateFrom || this.dateTo
@@ -284,7 +301,7 @@ export default {
   min-width: 320px;
   outline: none;
 
-  &:focus &__inputs {
+  &.--opened &__inputs {
     border-color: rgba($primary, 0.5);
   }
 
@@ -308,6 +325,7 @@ export default {
     @include transition((color, background-color));
     display: flex;
     align-items: center;
+    outline: none;
 
     &.--checked {
       background-color: rgba($primary, 0.1);
