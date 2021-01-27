@@ -292,23 +292,25 @@ export default {
     },
     dateFromParsed() {
       if (this.dateFrom) {
-        return dayjs(this.dateFrom)
+        const { year, month, day } = this.dateFrom
+        return dayjs({ year, month: month - 1, day })
       }
       return null
     },
     dateToParsed() {
       if (this.dateTo) {
-        return dayjs(this.dateTo)
+        const { year, month, day } = this.dateTo
+        return dayjs({ year, month: month - 1, day })
       }
       return null
     }
   },
   watch: {
     tempDateFrom(val) {
-      this.$emit('update:dateFrom', val ? new DatePickerDate(val.year(), val.month(), val.date()) : null)
+      this.$emit('update:dateFrom', val ? new DatePickerDate(val.year(), val.month() + 1, val.date()) : null)
     },
     tempDateTo(val) {
-      this.$emit('update:dateTo', val ? new DatePickerDate(val.year(), val.month(), val.date()) : null)
+      this.$emit('update:dateTo', val ? new DatePickerDate(val.year(), val.month() + 1, val.date()) : null)
     }
   }
 }
@@ -346,23 +348,25 @@ export default {
   }
 }
 
+$transform-size: 400% / 6;
+
 .calendar-slide-previous {
   &-enter-from {
-    transform: translateY(-100%);
+    transform: translateY(-$transform-size);
   }
 
   &-leave-to {
-    transform: translateY(100%);
+    transform: translateY($transform-size);
   }
 }
 
 .calendar-slide-next {
   &-enter-from {
-    transform: translateY(100%);
+    transform: translateY($transform-size);
   }
 
   &-leave-to {
-    transform: translateY(-100%);
+    transform: translateY(-$transform-size);
   }
 }
 
