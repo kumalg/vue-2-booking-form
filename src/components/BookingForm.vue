@@ -79,7 +79,7 @@ export default {
 
 <style lang="scss" scoped>
 .booking-form {
-  max-width: 320px;
+  max-width: 512px;
   width: 100%;
   margin: auto;
   padding: 1.5rem;

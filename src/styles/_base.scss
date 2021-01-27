@@ -11,3 +11,7 @@ body {
   color: $text-primary;
   background-color: $background;
 }
+
+* {
+  box-sizing: border-box;
+}

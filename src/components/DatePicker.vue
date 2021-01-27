@@ -11,8 +11,9 @@
         <div v-else-if="dateFromPlaceholder" class="date-picker__inputs__input__placeholder">
           {{ dateFromPlaceholder }}
         </div>
+        <button v-show="dateFrom" @mousedown.prevent @click.prevent="tempDateFrom = null"><Icon icon="crossSmall" /></button>
       </div>
-      <Icon icon="angleRight"></Icon>
+      <Icon icon="arrowRight"></Icon>
       <div
         @click="selectedDateType = 'dateTo'"
         :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateTo' }]"
@@ -23,10 +24,11 @@
         <div v-else-if="dateToPlaceholder" class="date-picker__inputs__input__placeholder">
           {{ dateToPlaceholder }}
         </div>
+        <button v-show="dateTo" @mousedown.prevent @click.prevent="tempDateTo = null"><Icon icon="crossSmall" /></button>
       </div>
     </div>
 
-    <div v-show="show" class="date-picker__popup">
+    <div v-show="show" class="date-picker__popup" @mousedown.prevent>
       <div class="date-picker__popup__header">
         <button @click="previousMonth()">
           <Icon icon="angleLeft"></Icon>
@@ -132,7 +134,8 @@ export default {
     },
     setDateFrom(date) {
       if (this.dateTo && this.dateTo.isBefore(date)) {
-        this.setDateTo(date)
+        this.tempDateFrom = date
+        this.setDateTo(null)
       } else {
         this.tempDateFrom = date
       }
@@ -239,7 +242,7 @@ export default {
 
 .date-picker {
   position: relative;
-  min-width: 256px;
+  min-width: 320px;
 
   &__inputs {
     height: 40px;
@@ -257,6 +260,8 @@ export default {
       font-size: 0.875rem;
       cursor: pointer;
       @include transition((color, background-color));
+      display: flex;
+      align-items: center;
 
       &--checked {
         background-color: rgba($primary, 0.1);
@@ -272,6 +277,22 @@ export default {
 
       &__placeholder {
         color: $text-secondary;
+      }
+
+      button {
+        margin-left: auto;
+        background-color: transparent;
+        border: none;
+        font-size: 1rem;
+        line-height: 0;
+        padding: 0;
+        cursor: pointer;
+        width: 1.25rem;
+        height: 1.25rem;
+        // background-color: #fff;
+        border-radius: 1rem;
+        color: $text-secondary;
+        // box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
       }
     }
   }
