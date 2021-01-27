@@ -293,10 +293,23 @@ export default {
     &__header {
       display: flex;
       align-items: center;
+      border: 1px solid $border;
+      border-radius: 50px;
+      padding: 8px;
 
       &__month {
         flex: 1;
         text-align: center;
+        font-size: 0.875rem;
+        font-weight: bold;
+      }
+
+      button {
+        font-size: 1rem;
+        background: transparent;
+        border: none;
+        line-height: 0;
+        cursor: pointer;
       }
     }
 
