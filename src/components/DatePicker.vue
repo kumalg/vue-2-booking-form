@@ -45,7 +45,11 @@
             <Icon icon="angleLeft"></Icon>
           </button>
           <div class="date-picker__popup__header__month">
-            {{ currentMonth.format('MMMM YYYY') }}
+            <transition
+              :name="lastMonthChangeDirection === Direction.PREVIOUS ? 'calendar-slide-previous' : 'calendar-slide-next'"
+            >
+              <div :key="currentMonth.format('MM-YYYY')">{{ currentMonth.format('MMMM YYYY') }}</div>
+            </transition>
           </div>
           <button @click="nextMonth()">
             <Icon icon="angleRight"></Icon>
@@ -59,7 +63,9 @@
         </div>
 
         <div class="date-picker__popup__calendar-container">
-          <transition name="calendar-slide">
+          <transition
+            :name="lastMonthChangeDirection === Direction.PREVIOUS ? 'calendar-slide-previous' : 'calendar-slide-next'"
+          >
             <div class="date-picker__calendar" :key="currentMonth.format('MM-YYYY')">
               <div
                 @click="setDate(dateObj.date)"
@@ -103,6 +109,11 @@ const SelectedTypes = {
   DATE_TO: 'date_to'
 }
 
+const Direction = {
+  PREVIOUS: 'previous',
+  NEXT: 'next'
+}
+
 export default {
   props: {
     dateFrom: {
@@ -120,13 +131,15 @@ export default {
   },
   data() {
     return {
+      Direction,
       SelectedTypes,
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
       weekdays: this.getWeekdays(),
       selectedDateType: null,
-      opened: false
+      opened: false,
+      lastMonthChangeDirection: Direction.NEXT
     }
   },
   methods: {
@@ -161,9 +174,11 @@ export default {
       return dayjs.weekdaysShort(true)
     },
     previousMonth() {
+      this.lastMonthChangeDirection = Direction.PREVIOUS
       this.currentMonth = this.currentMonth.subtract(1, 'month')
     },
     nextMonth() {
+      this.lastMonthChangeDirection = Direction.NEXT
       this.currentMonth = this.currentMonth.add(1, 'month')
     },
     setDate(date) {
@@ -271,18 +286,11 @@ export default {
   }
 }
 
-.calendar-slide {
+.calendar-slide-previous,
+.calendar-slide-next {
   &-enter-active,
   &-leave-active {
-    @include transition((opacity, transform));
-  }
-
-  &-enter-from {
-    transform: translateY(-100%);
-  }
-
-  &-leave-to {
-    transform: translateY(100%);
+    @include transition((opacity, transform), 0.3s);
   }
 
   &-enter-from,
@@ -296,6 +304,26 @@ export default {
   }
 }
 
+.calendar-slide-previous {
+  &-enter-from {
+    transform: translateY(-100%);
+  }
+
+  &-leave-to {
+    transform: translateY(100%);
+  }
+}
+
+.calendar-slide-next {
+  &-enter-from {
+    transform: translateY(100%);
+  }
+
+  &-leave-to {
+    transform: translateY(-100%);
+  }
+}
+
 .date-picker {
   position: relative;
   min-width: 320px;
@@ -306,35 +334,43 @@ export default {
   }
 
   &__inputs {
-    height: 40px;
+    height: 48px;
     width: 100%;
     display: flex;
     border: 1px solid $border;
-    border-radius: 40px;
+    border-radius: 48px;
     align-items: center;
+    cursor: pointer;
     @include transition((border-color));
   }
 
   &__input {
     flex: 1;
     margin: 4px 8px;
-    padding: 4px 8px;
+    padding: 8px 12px;
     border-radius: 40px;
     font-size: 0.875rem;
     cursor: pointer;
-    @include transition((color, background-color));
     display: flex;
     align-items: center;
     outline: none;
+    @include transition(background-color);
+
+    &__value,
+    &__placeholder {
+      @include transition(color);
+    }
 
     &.--checked {
       background-color: rgba($primary, 0.1);
     }
 
+    &:hover &__placeholder,
     &.--checked &__placeholder {
       color: rgba($primary, 0.5);
     }
 
+    &:hover &__value,
     &.--checked &__value {
       color: $primary;
     }
@@ -350,12 +386,14 @@ export default {
       font-size: 1rem;
       line-height: 0;
       padding: 0;
-      cursor: pointer;
-      // padding: 0.25rem;
-      // background-color: #fff;
       border-radius: 1rem;
-      color: $text-secondary;
-      // box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      color: rgba($text-primary, 0.5);
+      @include transition(color);
+      cursor: pointer;
+
+      &:hover {
+        color: $red;
+      }
     }
   }
 
@@ -375,13 +413,16 @@ export default {
       align-items: center;
       border: 1px solid $border;
       border-radius: 50px;
-      padding: 8px;
+      padding: 12px;
+      height: 48px;
 
       &__month {
         flex: 1;
         text-align: center;
         font-size: 0.875rem;
         font-weight: bold;
+        position: relative;
+        // overflow: hidden;
       }
 
       button {
@@ -390,6 +431,11 @@ export default {
         border: none;
         line-height: 0;
         cursor: pointer;
+        @include transition((color));
+
+        &:hover {
+          color: $primary;
+        }
       }
     }
 
