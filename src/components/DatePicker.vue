@@ -1,5 +1,5 @@
 <template>
-  <div :class="['date-picker', { '--opened': opened }]" @click="open()">
+  <div ref="mainElement" :class="['date-picker', { '--opened': opened }]" tabindex="-1" @focus="open()">
     <div class="date-picker__inputs">
       <div
         ref="dateFromElement"
@@ -8,13 +8,13 @@
         @blur="hide($event)"
         :class="['date-picker__input i1', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
       >
-        <div v-if="dateFrom" class="date-picker__input__value">
-          {{ dateFrom.format('D MMM YYYY') }}
+        <div v-if="dateFromParsed" class="date-picker__input__value">
+          {{ dateFromParsed.format('D MMM YYYY') }}
         </div>
         <div v-else-if="dateFromPlaceholder" class="date-picker__input__placeholder">
           {{ dateFromPlaceholder }}
         </div>
-        <span v-show="dateFrom" @mousedown.prevent @click.prevent="tempDateFrom = null" class="date-picker__input__clear">
+        <span v-show="dateFromParsed" @mousedown.prevent @click.prevent="tempDateFrom = null" class="date-picker__input__clear">
           <Icon icon="crossSmall" />
         </span>
       </div>
@@ -26,13 +26,13 @@
         @blur="hide($event)"
         :class="['date-picker__input i2', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]"
       >
-        <div v-if="dateTo" class="date-picker__input__value">
-          {{ dateTo.format('D MMM YYYY') }}
+        <div v-if="dateToParsed" class="date-picker__input__value">
+          {{ dateToParsed.format('D MMM YYYY') }}
         </div>
         <div v-else-if="dateToPlaceholder" class="date-picker__input__placeholder">
           {{ dateToPlaceholder }}
         </div>
-        <span v-show="dateTo" @mousedown.prevent @click.prevent="tempDateTo = null" class="date-picker__input__clear">
+        <span v-show="dateToParsed" @mousedown.prevent @click.prevent="tempDateTo = null" class="date-picker__input__clear">
           <Icon icon="crossSmall" />
         </span>
       </div>
@@ -150,6 +150,7 @@ export default {
   },
   methods: {
     open() {
+      console.log('open')
       if (this.opened) return
       this.opened = true
 
@@ -161,7 +162,13 @@ export default {
     },
     hide(event) {
       const newFocused = event.relatedTarget
-      if (!this.opened || newFocused === this.$refs.dateFromElement || newFocused === this.$refs.dateToElement) return
+      if (
+        !this.opened ||
+        newFocused === this.$refs.dateFromElement ||
+        newFocused === this.$refs.dateToElement ||
+        newFocused === this.$refs.mainElement
+      )
+        return
 
       this.selectedDateType = null
       this.opened = false
@@ -175,7 +182,7 @@ export default {
       this.open()
     },
     getInitialMonth() {
-      const existedDate = this.dateFrom || this.dateTo
+      const existedDate = this.dateFromParsed || this.dateToParsed
       return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month }) : dayjs().startOf('month')
     },
     getWeekdays() {
@@ -197,23 +204,23 @@ export default {
       }
     },
     setDateFrom(date) {
-      if (this.dateTo && this.dateTo.isBefore(date)) {
+      if (this.dateToParsed && this.dateToParsed.isBefore(date)) {
         this.tempDateFrom = date
         this.setDateTo(null)
       } else {
         this.tempDateFrom = date
       }
-      this.selectedDateType = SelectedTypes.DATE_TO
+      this.$refs.dateToElement.focus()
     },
     setDateTo(date) {
-      if (this.dateFrom && this.dateFrom.isAfter(date)) {
+      if (this.dateFromParsed && this.dateFromParsed.isAfter(date)) {
         this.tempDateTo = null
         this.setDateFrom(date)
       } else {
         this.tempDateTo = date
       }
-      if (!this.dateFrom) {
-        this.selectedDateType = SelectedTypes.DATE_FROM
+      if (!this.dateFromParsed) {
+        this.$refs.dateFromElement.focus()
       }
     },
     adjustPosition() {
@@ -272,9 +279,9 @@ export default {
       return allDays.map(d => {
         return {
           date: d,
-          selected: this.dateFrom?.isSameOrBefore(d, 'day') && this.dateTo?.isSameOrAfter(d, 'day'),
-          selectedFrom: this.dateFrom?.isSame(d, 'day'),
-          selectedTo: this.dateTo?.isSame(d, 'day'),
+          selected: this.dateFromParsed?.isSameOrBefore(d, 'day') && this.dateToParsed?.isSameOrAfter(d, 'day'),
+          selectedFrom: this.dateFromParsed?.isSame(d, 'day'),
+          selectedTo: this.dateToParsed?.isSame(d, 'day'),
           otherMonth: !this.currentMonth.isSame(d, 'month'),
           today: d.isToday()
         }
@@ -282,14 +289,26 @@ export default {
     },
     isAbove() {
       return this.preferredOpenDirection === OpenDirection.ABOVE
+    },
+    dateFromParsed() {
+      if (this.dateFrom) {
+        return dayjs(this.dateFrom)
+      }
+      return null
+    },
+    dateToParsed() {
+      if (this.dateTo) {
+        return dayjs(this.dateTo)
+      }
+      return null
     }
   },
   watch: {
-    tempDateFrom(newValue) {
-      this.$emit('update:dateFrom', newValue)
+    tempDateFrom(val) {
+      this.$emit('update:dateFrom', val ? new DatePickerDate(val.year(), val.month(), val.date()) : null)
     },
-    tempDateTo(newValue) {
-      this.$emit('update:dateTo', newValue)
+    tempDateTo(val) {
+      this.$emit('update:dateTo', val ? new DatePickerDate(val.year(), val.month(), val.date()) : null)
     }
   }
 }
