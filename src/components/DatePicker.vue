@@ -5,14 +5,24 @@
         @click="selectedDateType = 'dateFrom'"
         :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateFrom' }]"
       >
-        {{ dateFrom ? dateFrom.format('D MMM YYYY') : 'Check In' }}
+        <div v-if="dateFrom" class="date-picker__inputs__input__value">
+          {{ dateFrom.format('D MMM YYYY') }}
+        </div>
+        <div v-else class="date-picker__inputs__input__placeholder">
+          Check In
+        </div>
       </div>
       <Icon icon="angleRight"></Icon>
       <div
         @click="selectedDateType = 'dateTo'"
         :class="['date-picker__inputs__input', { 'date-picker__inputs__input--checked': selectedDateType === 'dateTo' }]"
       >
-        {{ dateTo ? dateTo.format('D MMM YYYY') : 'Check Out' }}
+        <div v-if="dateTo" class="date-picker__inputs__input__value">
+          {{ dateTo?.format('D MMM YYYY') }}
+        </div>
+        <div v-else class="date-picker__inputs__input__placeholder">
+          Check Out
+        </div>
       </div>
     </div>
 
@@ -25,6 +35,12 @@
         <button @click="nextMonth()">
           <Icon icon="angleRight"></Icon>
         </button>
+      </div>
+
+      <div class="date-picker__popup__weekdays">
+        <div class="date-picker__popup__weekdays__day" v-for="weekday in weekdays" :key="weekday">
+          {{ weekday }}
+        </div>
       </div>
 
       <div class="date-picker__popup__calendar-container">
@@ -48,15 +64,28 @@
 </template>
 
 <script>
+// import 'dayjs/locale/pl'
 import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+import isToday from 'dayjs/plugin/isToday'
+import localeData from 'dayjs/plugin/localeData'
+// import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
 import DatePickerDate from '@/filters/DatePickerDate'
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
+dayjs.extend(isToday)
+dayjs.extend(localeData)
 dayjs.extend(objectSupport)
+// dayjs.extend(updateLocale)
+// dayjs.locale('pl')
+// dayjs.updateLocale('en', {
+//   week: {
+//     dow: 1
+//   }
+// })
 
 export default {
   props: {
@@ -72,6 +101,7 @@ export default {
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
+      weekdays: this.getWeekdays(),
       selectedDateType: null
     }
   },
@@ -80,22 +110,8 @@ export default {
       const existedDate = this.dateFrom || this.dateTo
       return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month }) : dayjs().startOf('month')
     },
-    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo }) {
-      return [
-        'date-picker__calendar__item',
-        {
-          'date-picker__calendar__item--other-month': otherMonth
-        },
-        {
-          'date-picker__calendar__item--selected': selected
-        },
-        {
-          'date-picker__calendar__item--selected-from': selectedFrom
-        },
-        {
-          'date-picker__calendar__item--selected-to': selectedTo
-        }
-      ]
+    getWeekdays() {
+      return dayjs.weekdaysShort()
     },
     previousMonth() {
       this.currentMonth = this.currentMonth.subtract(1, 'month')
@@ -128,32 +144,53 @@ export default {
       if (!this.dateFrom) {
         this.selectedDateType = 'dateFrom'
       }
+    },
+    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today }) {
+      return [
+        'date-picker__calendar__item',
+        {
+          'date-picker__calendar__item--other-month': otherMonth
+        },
+        {
+          'date-picker__calendar__item--selected': selected
+        },
+        {
+          'date-picker__calendar__item--selected-from': selectedFrom
+        },
+        {
+          'date-picker__calendar__item--selected-to': selectedTo
+        },
+        {
+          'date-picker__calendar__item--today': today
+        }
+      ]
     }
   },
   computed: {
     previousMonthDays() {
       const previousMonth = this.currentMonth.subtract(1, 'month')
-      const previousMonthDays = previousMonth.daysInMonth()
-      const needsDays = Math.max(this.currentMonth.day() - 1, 0)
-      const shift = previousMonthDays - needsDays + 1
+      const year = previousMonth.year()
+      const month = previousMonth.month()
+      const days = previousMonth.daysInMonth()
+      const needsDays = Math.max(this.currentMonth.day(), 0)
+      const shift = days - needsDays + 1
 
-      return Array.from({ length: needsDays }, (_, i) => i + shift).map(day =>
-        dayjs({ year: previousMonth.year(), month: previousMonth.month(), day })
-      )
+      return Array.from({ length: needsDays }, (_, i) => i + shift).map(day => dayjs({ year, month, day }))
     },
     currentMonthDays() {
+      const year = this.currentMonth.year()
+      const month = this.currentMonth.month()
       const days = this.currentMonth.daysInMonth()
-      return Array.from({ length: days }, (_, i) => i + 1).map(day =>
-        dayjs({ year: this.currentMonth.year(), month: this.currentMonth.month(), day })
-      )
+
+      return Array.from({ length: days }, (_, i) => i + 1).map(day => dayjs({ year, month, day }))
     },
     nextMonthDays() {
       const nextMonth = this.currentMonth.add(1, 'month')
+      const year = nextMonth.year()
+      const month = nextMonth.month()
       const needsDays = 7 * 6 - this.previousMonthDays.length - this.currentMonthDays.length
 
-      return Array.from({ length: needsDays }, (_, i) => i + 1).map(day =>
-        dayjs({ year: nextMonth.year(), month: nextMonth.month(), day })
-      )
+      return Array.from({ length: needsDays }, (_, i) => i + 1).map(day => dayjs({ year, month, day }))
     },
     allVisibleDays() {
       const allDays = [...this.previousMonthDays, ...this.currentMonthDays, ...this.nextMonthDays]
@@ -163,7 +200,8 @@ export default {
           selected: this.dateFrom?.isSameOrBefore(d, 'day') && this.dateTo?.isSameOrAfter(d, 'day'),
           selectedFrom: this.dateFrom?.isSame(d, 'day'),
           selectedTo: this.dateTo?.isSame(d, 'day'),
-          otherMonth: !this.currentMonth.isSame(d, 'month')
+          otherMonth: !this.currentMonth.isSame(d, 'month'),
+          today: d.isToday()
         }
       })
     }
@@ -182,7 +220,7 @@ export default {
 <style lang="scss" scoped>
 .calendar-slide-enter-active,
 .calendar-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  @include transition((opacity, transform));
 }
 
 .calendar-slide-enter-from {
@@ -216,12 +254,27 @@ export default {
 
     &__input {
       flex: 1;
-      padding: 8px 16px;
+      margin: 4px 8px;
+      padding: 4px 8px;
+      border-radius: 40px;
       font-size: 0.875rem;
       cursor: pointer;
+      @include transition((color, background-color));
 
       &--checked {
-        font-weight: bold;
+        background-color: rgba($primary, 0.1);
+      }
+
+      &--checked &__placeholder {
+        color: rgba($primary, 0.5);
+      }
+
+      &--checked &__value {
+        color: $primary;
+      }
+
+      &__placeholder {
+        color: $text-secondary;
       }
     }
   }
@@ -247,6 +300,18 @@ export default {
       }
     }
 
+    &__weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin: 1rem 0 0.75rem 0;
+
+      &__day {
+        text-align: center;
+        font-size: 0.75rem;
+        color: $text-secondary;
+      }
+    }
+
     &__calendar-container {
       position: relative;
       overflow: hidden;
@@ -259,7 +324,7 @@ export default {
 
     &__item {
       text-align: center;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       margin: 4px 0;
       box-sizing: border-box;
       position: relative;
@@ -276,9 +341,7 @@ export default {
         justify-content: center;
         border-radius: $size;
         box-sizing: border-box;
-        transition-property: background-color, color;
-        transition-duration: 0.2s;
-        transition-timing-function: ease;
+        @include transition((background-color, color));
       }
 
       &:before {
@@ -288,11 +351,16 @@ export default {
         bottom: 0;
         left: 0;
         right: 0;
-        transition: background-color 0.2s ease;
+        @include transition((background-color));
       }
 
       &:not(&--selected-from):not(&--selected-to):hover &__inner {
         background-color: rgba($primary, 0.1);
+        color: $primary;
+      }
+
+      &--today &__inner {
+        border: 2px solid rgba($primary, 0.5);
         color: $primary;
       }
 
@@ -315,9 +383,7 @@ export default {
         background-color: $primary;
       }
 
-      &--selected,
-      &--selected-from,
-      &--selected-to {
+      &--selected {
         &:before {
           background-color: rgba($primary, 0.1);
         }
