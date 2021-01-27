@@ -1,12 +1,23 @@
 <template>
-  <div ref="mainElement" :class="['date-picker', { '--opened': opened }]" tabindex="-1" @focus="open()">
+  <div
+    @keydown.down.prevent="pointerDown()"
+    @keydown.up.prevent="pointerUp()"
+    @keydown.left.prevent="pointerLeft()"
+    @keydown.right.prevent="pointerRight()"
+    @keydown.enter.prevent="setDate()"
+    @keydown.esc="hide()"
+    ref="mainElement"
+    :class="['date-picker', { '--opened': opened }]"
+    tabindex="-1"
+    @focus="open()"
+  >
     <div class="date-picker__inputs">
       <div
         ref="dateFromElement"
         tabindex="1"
         @focus="selectDateFrom()"
         @blur="hide($event)"
-        :class="['date-picker__input i1', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
+        :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
       >
         <div v-if="dateFromParsed" class="date-picker__input__value">
           {{ dateFromParsed.format('D MMM YYYY') }}
@@ -24,7 +35,7 @@
         tabindex="1"
         @focus="selectDateTo()"
         @blur="hide($event)"
-        :class="['date-picker__input i2', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]"
+        :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]"
       >
         <div v-if="dateToParsed" class="date-picker__input__value">
           {{ dateToParsed.format('D MMM YYYY') }}
@@ -41,7 +52,7 @@
     <transition name="popup-fade">
       <div v-show="opened" :class="['date-picker__popup', { '--above': isAbove }]" @mousedown.prevent>
         <div class="date-picker__popup__header">
-          <button @click="previousMonth()">
+          <button @click="previousMonth()" tabindex="-1">
             <Icon icon="angleLeft"></Icon>
           </button>
           <div class="date-picker__popup__header__month">
@@ -51,7 +62,7 @@
               <div :key="currentMonth.format('MM-YYYY')">{{ currentMonth.format('MMMM YYYY') }}</div>
             </transition>
           </div>
-          <button @click="nextMonth()">
+          <button @click="nextMonth()" tabindex="-1">
             <Icon icon="angleRight"></Icon>
           </button>
         </div>
@@ -68,10 +79,11 @@
           >
             <div class="date-picker__calendar" :key="currentMonth.format('MM-YYYY')">
               <div
-                @click="setDate(dateObj.date)"
-                v-for="dateObj in allVisibleDays"
+                v-for="(dateObj, index) in allVisibleDays"
                 :key="dateObj.date.format('DD-MM-YYYY')"
-                :class="calendarItemClassList(dateObj)"
+                :class="calendarItemClassList(dateObj, index)"
+                @click="setDate(dateObj.date)"
+                @mouseenter.self="pointerSet(index)"
               >
                 <div class="date-picker__calendar__item__inner">
                   {{ dateObj.date.date() }}
@@ -94,7 +106,6 @@ import isToday from 'dayjs/plugin/isToday'
 import localeData from 'dayjs/plugin/localeData'
 import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
-import DatePickerDate from '@/filters/DatePickerDate'
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -119,13 +130,15 @@ const OpenDirection = {
   ABOVE: 'above'
 }
 
+const calendarViewDaysCount = 7 * 6
+
 export default {
   props: {
     dateFrom: {
-      type: DatePickerDate
+      type: Object
     },
     dateTo: {
-      type: DatePickerDate
+      type: Object
     },
     dateFromPlaceholder: {
       type: String
@@ -145,12 +158,63 @@ export default {
       selectedDateType: null,
       opened: false,
       lastMonthChangeDirection: Direction.NEXT,
-      preferredOpenDirection: OpenDirection.BELOW
+      preferredOpenDirection: OpenDirection.BELOW,
+      pointer: null
     }
   },
   methods: {
+    pointerSet(index) {
+      this.pointer = index
+    },
+    pointerDown() {
+      if (this.pointer !== null) {
+        if (this.pointer + 7 >= calendarViewDaysCount) {
+          this.nextMonth()
+          this.pointer = (this.pointer + 7) % calendarViewDaysCount
+        } else {
+          this.pointer += 7
+        }
+      } else {
+        this.pointer = 0
+      }
+    },
+    pointerUp() {
+      if (this.pointer !== null) {
+        if (this.pointer < 7) {
+          this.previousMonth()
+          this.pointer = calendarViewDaysCount + this.pointer - 7
+        } else {
+          this.pointer -= 7
+        }
+      } else {
+        this.pointer = calendarViewDaysCount - 7
+      }
+    },
+    pointerLeft() {
+      if (this.pointer !== null) {
+        if (this.pointer < 1) {
+          this.previousMonth()
+          this.pointer = calendarViewDaysCount - 1
+        } else {
+          this.pointer -= 1
+        }
+      } else {
+        this.pointer = calendarViewDaysCount - 1
+      }
+    },
+    pointerRight() {
+      if (this.pointer !== null) {
+        if (this.pointer >= calendarViewDaysCount - 1) {
+          this.nextMonth()
+          this.pointer = 0
+        } else {
+          this.pointer += 1
+        }
+      } else {
+        this.pointer = 0
+      }
+    },
     open() {
-      console.log('open')
       if (this.opened) return
       this.opened = true
 
@@ -161,17 +225,22 @@ export default {
       this.adjustPosition()
     },
     hide(event) {
-      const newFocused = event.relatedTarget
+      const newFocused = event?.relatedTarget
       if (
         !this.opened ||
         newFocused === this.$refs.dateFromElement ||
         newFocused === this.$refs.dateToElement ||
         newFocused === this.$refs.mainElement
-      )
+      ) {
         return
+      }
 
+      this.pointer = null
       this.selectedDateType = null
       this.opened = false
+      this.$refs.dateFromElement.blur()
+      this.$refs.dateToElement.blur()
+      this.$refs.mainElement.blur()
     },
     selectDateFrom() {
       this.selectedDateType = SelectedTypes.DATE_FROM
@@ -182,8 +251,8 @@ export default {
       this.open()
     },
     getInitialMonth() {
-      const existedDate = this.dateFromParsed || this.dateToParsed
-      return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month }) : dayjs().startOf('month')
+      const existedDate = this.dateFrom || this.dateTo
+      return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month - 1 }) : dayjs().startOf('month')
     },
     getWeekdays() {
       return dayjs.weekdaysShort(true)
@@ -197,10 +266,15 @@ export default {
       this.currentMonth = this.currentMonth.add(1, 'month')
     },
     setDate(date) {
+      let actualDate = date
+      if (!actualDate && this.pointer) {
+        actualDate = this.allVisibleDays[this.pointer].date
+      }
+
       if (this.selectedDateType === SelectedTypes.DATE_FROM) {
-        this.setDateFrom(date)
+        this.setDateFrom(actualDate)
       } else if (this.selectedDateType === SelectedTypes.DATE_TO) {
-        this.setDateTo(date)
+        this.setDateTo(actualDate)
       }
     },
     setDateFrom(date) {
@@ -235,7 +309,7 @@ export default {
         this.preferredOpenDirection = OpenDirection.ABOVE
       }
     },
-    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today }) {
+    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today }, index) {
       return [
         'date-picker__calendar__item',
         {
@@ -243,7 +317,8 @@ export default {
           '--selected': selected,
           '--selected-from': selectedFrom,
           '--selected-to': selectedTo,
-          '--today': today
+          '--today': today,
+          '--highlighted': index === this.pointer
         }
       ]
     }
@@ -270,7 +345,7 @@ export default {
       const nextMonth = this.currentMonth.add(1, 'month')
       const year = nextMonth.year()
       const month = nextMonth.month()
-      const needsDays = 7 * 6 - this.previousMonthDays.length - this.currentMonthDays.length
+      const needsDays = calendarViewDaysCount - this.previousMonthDays.length - this.currentMonthDays.length
 
       return Array.from({ length: needsDays }, (_, i) => i + 1).map(day => dayjs({ year, month, day }))
     },
@@ -307,10 +382,10 @@ export default {
   },
   watch: {
     tempDateFrom(val) {
-      this.$emit('update:dateFrom', val ? new DatePickerDate(val.year(), val.month() + 1, val.date()) : null)
+      this.$emit('update:dateFrom', val ? { year: val.year(), month: val.month() + 1, day: val.date() } : null)
     },
     tempDateTo(val) {
-      this.$emit('update:dateTo', val ? new DatePickerDate(val.year(), val.month() + 1, val.date()) : null)
+      this.$emit('update:dateTo', val ? { year: val.year(), month: val.month() + 1, day: val.date() } : null)
     }
   }
 }
@@ -448,7 +523,7 @@ $transform-size: 400% / 6;
     left: 0;
     right: 0;
     position: absolute;
-    background: white;
+    background-color: #fff;
     box-shadow: 0 8px 48px -8px rgba(0, 0, 0, 0.2);
     border-radius: 24px;
     overflow: hidden;
@@ -473,7 +548,6 @@ $transform-size: 400% / 6;
         font-size: 0.875rem;
         font-weight: bold;
         position: relative;
-        // overflow: hidden;
       }
 
       button {
@@ -544,7 +618,7 @@ $transform-size: 400% / 6;
         @include transition((background-color));
       }
 
-      &:not(.--selected-from):not(.--selected-to):hover &__inner {
+      &:not(.--selected-from):not(.--selected-to).--highlighted &__inner {
         background-color: rgba($primary, 0.1);
         color: $primary;
       }
@@ -566,13 +640,6 @@ $transform-size: 400% / 6;
         color: rgba($primary, 0.25);
       }
 
-      &.--selected-from &__inner,
-      &.--selected-to &__inner {
-        font-weight: bold;
-        color: #fff;
-        background-color: $primary;
-      }
-
       &.--selected {
         &:before {
           background-color: rgba($primary, 0.1);
@@ -585,6 +652,15 @@ $transform-size: 400% / 6;
 
       &.--selected-to:before {
         right: 50%;
+      }
+
+      &.--other-month.--selected-from &__inner,
+      &.--other-month.--selected-to &__inner,
+      &.--selected-from &__inner,
+      &.--selected-to &__inner {
+        font-weight: bold;
+        color: #fff;
+        background-color: $primary;
       }
     }
   }

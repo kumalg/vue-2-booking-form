@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import DatePickerDate from '@/filters/DatePickerDate'
 import currency from '@/filters/currency'
 import Rating from './Rating.vue'
 import DatePicker from './DatePicker.vue'
@@ -39,10 +38,10 @@ export default {
       type: Number
     },
     dateFrom: {
-      type: DatePickerDate
+      type: Object
     },
     dateTo: {
-      type: DatePickerDate
+      type: Object
     },
     dateFromPlaceholder: {
       type: String
@@ -51,10 +50,10 @@ export default {
       type: String
     },
     minDate: {
-      type: DatePickerDate
+      type: Object
     },
     maxDate: {
-      type: DatePickerDate
+      type: Object
     },
     excludeDates: {
       type: Array
