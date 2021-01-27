@@ -39,7 +39,7 @@
     </div>
 
     <transition name="popup-fade">
-      <div v-show="opened" class="date-picker__popup" @mousedown.prevent>
+      <div v-show="opened" :class="['date-picker__popup', { '--above': isAbove }]" @mousedown.prevent>
         <div class="date-picker__popup__header">
           <button @click="previousMonth()">
             <Icon icon="angleLeft"></Icon>
@@ -114,6 +114,11 @@ const Direction = {
   NEXT: 'next'
 }
 
+const OpenDirection = {
+  BELOW: 'below',
+  ABOVE: 'above'
+}
+
 export default {
   props: {
     dateFrom: {
@@ -139,7 +144,8 @@ export default {
       weekdays: this.getWeekdays(),
       selectedDateType: null,
       opened: false,
-      lastMonthChangeDirection: Direction.NEXT
+      lastMonthChangeDirection: Direction.NEXT,
+      preferredOpenDirection: OpenDirection.BELOW
     }
   },
   methods: {
@@ -150,6 +156,8 @@ export default {
       if (!this.selectedDateType) {
         this.$refs.dateFromElement.focus()
       }
+
+      this.adjustPosition()
     },
     hide(event) {
       const newFocused = event.relatedTarget
@@ -208,6 +216,18 @@ export default {
         this.selectedDateType = SelectedTypes.DATE_FROM
       }
     },
+    adjustPosition() {
+      if (typeof window === 'undefined') return
+      const spaceAbove = this.$el.getBoundingClientRect().top
+      const spaceBelow = window.innerHeight - this.$el.getBoundingClientRect().bottom
+      const hasEnoughSpaceBelow = spaceBelow > 400
+
+      if (hasEnoughSpaceBelow || spaceBelow > spaceAbove) {
+        this.preferredOpenDirection = OpenDirection.BELOW
+      } else {
+        this.preferredOpenDirection = OpenDirection.ABOVE
+      }
+    },
     calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today }) {
       return [
         'date-picker__calendar__item',
@@ -259,6 +279,9 @@ export default {
           today: d.isToday()
         }
       })
+    },
+    isAbove() {
+      return this.preferredOpenDirection === OpenDirection.ABOVE
     }
   },
   watch: {
@@ -407,6 +430,11 @@ export default {
     border-radius: 24px;
     overflow: hidden;
     padding: 24px;
+
+    &.--above {
+      top: initial;
+      bottom: calc(100% + 8px);
+    }
 
     &__header {
       display: flex;
