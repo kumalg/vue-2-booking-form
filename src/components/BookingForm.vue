@@ -10,6 +10,8 @@
         v-model:dateTo="tempDateTo"
         :dateFromPlaceholder="dateFromPlaceholder"
         :dateToPlaceholder="dateToPlaceholder"
+        :minDate="minDate"
+        :maxDate="maxDate"
       ></DatePicker>
     </div>
   </div>

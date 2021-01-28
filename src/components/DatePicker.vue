@@ -52,7 +52,7 @@
     <transition name="popup-fade">
       <div v-show="opened" :class="['date-picker__popup', { '--above': isAbove }]" @mousedown.prevent>
         <div class="date-picker__popup__header">
-          <button @click="previousMonth()" tabindex="-1">
+          <button @click="previousMonth()" tabindex="-1" :disabled="!canGoToPreviousMonth">
             <Icon icon="angleLeft"></Icon>
           </button>
           <div class="date-picker__popup__header__month">
@@ -62,7 +62,7 @@
               <div :key="currentMonth.format('MM-YYYY')">{{ currentMonth.format('MMMM YYYY') }}</div>
             </transition>
           </div>
-          <button @click="nextMonth()" tabindex="-1">
+          <button @click="nextMonth()" tabindex="-1" :disabled="!canGoToNextMonth">
             <Icon icon="angleRight"></Icon>
           </button>
         </div>
@@ -138,6 +138,12 @@ export default {
       type: Object
     },
     dateTo: {
+      type: Object
+    },
+    minDate: {
+      type: Object
+    },
+    maxDate: {
       type: Object
     },
     dateFromPlaceholder: {
@@ -258,6 +264,7 @@ export default {
       return dayjs.weekdaysShort(true)
     },
     previousMonth() {
+      if (!this.canGoToPreviousMonth) return
       this.lastMonthChangeDirection = Direction.PREVIOUS
       this.currentMonth = this.currentMonth.subtract(1, 'month')
     },
@@ -278,6 +285,8 @@ export default {
       }
     },
     setDateFrom(date) {
+      if (this.minDateParsed?.isAfter(date) || this.maxDateParsed?.isBefore(date)) return
+
       if (this.dateToParsed && this.dateToParsed.isBefore(date)) {
         this.tempDateFrom = date
         this.setDateTo(null)
@@ -287,6 +296,8 @@ export default {
       this.$refs.dateToElement.focus()
     },
     setDateTo(date) {
+      if (this.minDateParsed?.isAfter(date) || this.maxDateParsed?.isBefore(date)) return
+
       if (this.dateFromParsed && this.dateFromParsed.isAfter(date)) {
         this.tempDateTo = null
         this.setDateFrom(date)
@@ -309,7 +320,7 @@ export default {
         this.preferredOpenDirection = OpenDirection.ABOVE
       }
     },
-    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today }, index) {
+    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today, excluded }, index) {
       return [
         'date-picker__calendar__item',
         {
@@ -318,6 +329,7 @@ export default {
           '--selected-from': selectedFrom,
           '--selected-to': selectedTo,
           '--today': today,
+          '--excluded': excluded,
           '--highlighted': index === this.pointer
         }
       ]
@@ -358,6 +370,7 @@ export default {
           selectedFrom: this.dateFromParsed?.isSame(d, 'day'),
           selectedTo: this.dateToParsed?.isSame(d, 'day'),
           otherMonth: !this.currentMonth.isSame(d, 'month'),
+          excluded: this.minDateParsed?.isAfter(d, 'day') || this.maxDateParsed?.isBefore(d, 'day'),
           today: d.isToday()
         }
       })
@@ -378,6 +391,26 @@ export default {
         return dayjs({ year, month: month - 1, day })
       }
       return null
+    },
+    minDateParsed() {
+      if (this.minDate) {
+        const { year, month, day } = this.minDate
+        return dayjs({ year, month: month - 1, day })
+      }
+      return null
+    },
+    maxDateParsed() {
+      if (this.maxDate) {
+        const { year, month, day } = this.maxDate
+        return dayjs({ year, month: month - 1, day })
+      }
+      return null
+    },
+    canGoToPreviousMonth() {
+      return this.minDateParsed ? this.minDateParsed.isBefore(this.currentMonth, 'month') : true
+    },
+    canGoToNextMonth() {
+      return this.maxDateParsed ? this.maxDateParsed.isAfter(this.currentMonth, 'month') : true
     }
   },
   watch: {
@@ -555,11 +588,11 @@ $transform-size: 400% / 6;
         background: transparent;
         border: none;
         line-height: 0;
-        cursor: pointer;
         @include transition((color));
 
-        &:hover {
+        &:not(:disabled):hover {
           color: $primary;
+          cursor: pointer;
         }
       }
     }
@@ -628,6 +661,7 @@ $transform-size: 400% / 6;
         color: $primary;
       }
 
+      &.--excluded &__inner,
       &.--other-month &__inner {
         color: $border;
       }

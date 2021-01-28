@@ -9,6 +9,8 @@
       :price="form.price"
       :rating="form.rating"
       :reviewsCount="form.reviewsCount"
+      :minDate="minDate"
+      :maxDate="maxDate"
     ></BookingForm>
   </div>
 </template>
@@ -21,6 +23,16 @@ export default {
   components: { BookingForm },
   data() {
     return {
+      minDate: {
+        year: 2020,
+        month: 12,
+        day: 15
+      },
+      maxDate: {
+        year: 2021,
+        month: 12,
+        day: 15
+      },
       form: {
         price: 298,
         rating: 3.5,
