@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app">
     <div class="app-booking-form">
       <BookingForm
         v-model="form.dateRange"
@@ -67,15 +67,20 @@ export default {
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+}
+
+.app {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   height: 100%;
 }
 
 .app-booking-form {
   max-width: 420px;
-  margin: auto;
+  margin: 0 auto;
 }
 
 .app-form {
