@@ -93,6 +93,25 @@ export default {
 </script>
 
 <style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
+
+body,
+html {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-size: 16px;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fcfcfc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -116,7 +135,7 @@ export default {
 .app-form {
   margin-top: 32px;
   font-size: 0.875rem;
-  color: $text-secondary;
+  color: #999;
   min-height: 128px;
   padding: 8px;
 }

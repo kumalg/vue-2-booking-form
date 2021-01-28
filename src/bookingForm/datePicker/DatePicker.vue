@@ -301,6 +301,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../styles/variables';
+@import '../styles/mixins';
+
 .popup-fade {
   &-enter-active,
   &-leave-active {
@@ -433,7 +436,7 @@ $transform-size: 400% / 6;
     left: 0;
     right: 0;
     position: absolute;
-    background-color: #fff;
+    background-color: $background;
     box-shadow: 0 8px 48px -8px rgba(0, 0, 0, 0.2);
     border-radius: 24px;
     overflow: hidden;

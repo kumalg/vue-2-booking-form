@@ -82,15 +82,25 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import './styles/variables';
+@import './styles/mixins';
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
+
 .booking-form {
+  font-family: 'Montserrat', sans-serif;
+  color: $text-primary;
   max-width: 512px;
   width: 100%;
   margin: auto;
   padding: 1.5rem;
   border-radius: 1.5rem;
-  background-color: #fff;
+  background-color: $background;
   box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.1);
+
+  &, * {
+    box-sizing: border-box;
+  }
 
   &__price {
     font-size: 1.5rem;
@@ -98,7 +108,7 @@ export default {
   }
 
   &__rating {
-    margin-top: 8px;
+    margin-top: 0.5rem;
   }
 
   &__date-picker {
