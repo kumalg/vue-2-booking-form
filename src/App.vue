@@ -1,18 +1,22 @@
 <template>
   <div>
-    {{ form }}
-    <BookingForm
-      v-model:dateFrom="form.dateFrom"
-      v-model:dateTo="form.dateTo"
-      dateFromPlaceholder="Przyjazd"
-      dateToPlaceholder="Wyjazd"
-      :price="form.price"
-      :rating="form.rating"
-      :reviewsCount="form.reviewsCount"
-      :minDate="minDate"
-      :maxDate="maxDate"
-      :excludeDates="excludeDates"
-    ></BookingForm>
+    <div class="app-booking-form">
+      <BookingForm
+        v-model:dateFrom="form.dateFrom"
+        v-model:dateTo="form.dateTo"
+        dateFromPlaceholder="Przyjazd"
+        dateToPlaceholder="Wyjazd"
+        :price="form.price"
+        :rating="form.rating"
+        :reviewsCount="form.reviewsCount"
+        :minDate="minDate"
+        :maxDate="maxDate"
+        :excludeDates="excludeDates"
+      ></BookingForm>
+    </div>
+    <div class="app-form">
+      {{ form }}
+    </div>
   </div>
 </template>
 
@@ -24,46 +28,44 @@ export default {
   name: 'App',
   components: { BookingForm },
   setup() {
-    {
-      const minDate = {
-        year: 2020,
-        month: 12,
-        day: 15
-      }
+    const minDate = {
+      year: 2020,
+      month: 12,
+      day: 15
+    }
 
-      const maxDate = {
+    const maxDate = {
+      year: 2021,
+      month: 12,
+      day: 15
+    }
+
+    const excludeDates = [
+      {
         year: 2021,
-        month: 12,
-        day: 15
+        month: 1,
+        day: 6
+      },
+      {
+        year: 2021,
+        month: 1,
+        day: 7
       }
+    ]
 
-      const excludeDates = [
-        {
-          year: 2021,
-          month: 1,
-          day: 6
-        },
-        {
-          year: 2021,
-          month: 1,
-          day: 7
-        }
-      ]
+    const form = reactive({
+      price: 298,
+      rating: 3.5,
+      reviewsCount: 123,
+      dateFrom: null,
+      dateTo: null
+    })
 
-      const form = reactive({
-        price: 298,
-        rating: 3.5,
-        reviewsCount: 123,
-        dateFrom: null,
-        dateTo: null
-      })
-
-      return {
-        minDate,
-        maxDate,
-        excludeDates,
-        form
-      }
+    return {
+      minDate,
+      maxDate,
+      excludeDates,
+      form
     }
   }
 }
@@ -77,5 +79,17 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+.app-booking-form {
+  max-width: 420px;
+  margin: auto;
+}
+
+.app-form {
+  margin-top: 32px;
+  font-size: 0.875rem;
+  color: $text-secondary;
+  min-height: 128px;
 }
 </style>
