@@ -2,8 +2,7 @@
   <div>
     <div class="app-booking-form">
       <BookingForm
-        v-model:dateFrom="form.dateFrom"
-        v-model:dateTo="form.dateTo"
+        v-model="form.dateRange"
         dateFromPlaceholder="Przyjazd"
         dateToPlaceholder="Wyjazd"
         :price="form.price"
@@ -21,51 +20,44 @@
 </template>
 
 <script>
-import { reactive } from 'vue'
 import BookingForm from './bookingForm/BookingForm'
 
 export default {
   name: 'App',
   components: { BookingForm },
-  setup() {
-    const minDate = {
-      year: 2020,
-      month: 12,
-      day: 15
-    }
-
-    const maxDate = {
-      year: 2021,
-      month: 12,
-      day: 15
-    }
-
-    const excludeDates = [
-      {
-        year: 2021,
-        month: 1,
-        day: 6
-      },
-      {
-        year: 2021,
-        month: 1,
-        day: 7
-      }
-    ]
-
-    const form = reactive({
-      price: 298,
-      rating: 3.5,
-      reviewsCount: 123,
-      dateFrom: null,
-      dateTo: null
-    })
-
+  data () {
     return {
-      minDate,
-      maxDate,
-      excludeDates,
-      form
+      form: {
+        price: 298,
+        rating: 3.5,
+        reviewsCount: 123,
+        dateRange: {
+          dateFrom: null,
+          dateTo: null
+        }
+      },
+      minDate: {
+        year: 2020,
+        month: 12,
+        day: 15
+      },
+      maxDate: {
+        year: 2021,
+        month: 12,
+        day: 15
+      },
+      excludeDates: [
+        {
+          year: 2021,
+          month: 1,
+          day: 6
+        },
+        {
+          year: 2021,
+          month: 1,
+          day: 7
+        }
+      ]
     }
   }
 }

@@ -1,4 +1,4 @@
-export default function currency(value, locale = 'pl-PL', currency = 'PLN', fractionDigits = 2) {
+export default function currency (value, locale = 'pl-PL', currency = 'PLN', fractionDigits = 2) {
   if (typeof value !== 'number' && value !== null) {
     console.error('currency: value must be a number')
   }

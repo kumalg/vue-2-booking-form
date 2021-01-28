@@ -1,16 +1,16 @@
 import { CALENDAR_DAYS_COUNT } from './helpers'
 
 export default {
-  data() {
+  data () {
     return {
       pointer: null
     }
   },
   methods: {
-    pointerSet(index) {
+    pointerSet (index) {
       this.pointer = index
     },
-    pointerDown() {
+    pointerDown () {
       if (this.pointer !== null) {
         if (this.pointer + 7 >= CALENDAR_DAYS_COUNT) {
           if (this.canGoToNextMonth) {
@@ -24,7 +24,7 @@ export default {
         this.pointer = 0
       }
     },
-    pointerUp() {
+    pointerUp () {
       if (this.pointer !== null) {
         if (this.pointer < 7) {
           if (this.canGoToPreviousMonth) {
@@ -38,7 +38,7 @@ export default {
         this.pointer = CALENDAR_DAYS_COUNT - 7
       }
     },
-    pointerLeft() {
+    pointerLeft () {
       if (this.pointer !== null) {
         if (this.pointer < 1) {
           this.previousMonth()
@@ -50,7 +50,7 @@ export default {
         this.pointer = CALENDAR_DAYS_COUNT - 1
       }
     },
-    pointerRight() {
+    pointerRight () {
       if (this.pointer !== null) {
         if (this.pointer >= CALENDAR_DAYS_COUNT - 1) {
           this.nextMonth()

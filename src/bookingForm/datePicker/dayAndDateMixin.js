@@ -21,10 +21,7 @@ dayjs.locale('pl')
 
 export default {
   props: {
-    dateFrom: {
-      type: Object
-    },
-    dateTo: {
+    value: {
       type: Object
     },
     minDate: {
@@ -37,28 +34,28 @@ export default {
       type: Array
     }
   },
-  data() {
+  data () {
     return {
-      tempDateFrom: this.dateFrom,
-      tempDateTo: this.dateTo,
+      tempDateFrom: this.value?.dateFrom,
+      tempDateTo: this.value?.dateTo,
       currentMonth: this.getInitialMonth(),
       weekdays: this.getWeekdays()
     }
   },
   methods: {
-    getInitialMonth() {
-      const existedDate = this.dateFrom || this.dateTo
+    getInitialMonth () {
+      const existedDate = this.value?.dateFrom || this.value?.dateTo
       return existedDate ? dayjs({ year: existedDate.year, month: existedDate.month - 1 }) : dayjs().startOf('month')
     },
-    getWeekdays() {
+    getWeekdays () {
       return dayjs.weekdaysShort(true)
     },
-    toDayJsInstance({ year, month, day }) {
+    toDayJsInstance ({ year, month, day }) {
       return dayjs({ year, month: month - 1, day })
     }
   },
   computed: {
-    previousMonthDays() {
+    previousMonthDays () {
       const previousMonth = this.currentMonth.subtract(1, 'month')
       const year = previousMonth.year()
       const month = previousMonth.month()
@@ -68,14 +65,14 @@ export default {
 
       return Array.from({ length: needsDays }, (_, i) => i + shift).map(day => dayjs({ year, month, day }))
     },
-    currentMonthDays() {
+    currentMonthDays () {
       const year = this.currentMonth.year()
       const month = this.currentMonth.month()
       const days = this.currentMonth.daysInMonth()
 
       return Array.from({ length: days }, (_, i) => i + 1).map(day => dayjs({ year, month, day }))
     },
-    nextMonthDays() {
+    nextMonthDays () {
       const nextMonth = this.currentMonth.add(1, 'month')
       const year = nextMonth.year()
       const month = nextMonth.month()
@@ -83,7 +80,7 @@ export default {
 
       return Array.from({ length: needsDays }, (_, i) => i + 1).map(day => dayjs({ year, month, day }))
     },
-    allVisibleDays() {
+    allVisibleDays () {
       const allDays = [...this.previousMonthDays, ...this.currentMonthDays, ...this.nextMonthDays]
       return allDays.map(d => {
         return {
@@ -100,19 +97,19 @@ export default {
         }
       })
     },
-    dateFromParsed() {
-      return this.dateFrom ? this.toDayJsInstance(this.dateFrom) : null
+    dateFromParsed () {
+      return this.value?.dateFrom ? this.toDayJsInstance(this.value.dateFrom) : null
     },
-    dateToParsed() {
-      return this.dateTo ? this.toDayJsInstance(this.dateTo) : null
+    dateToParsed () {
+      return this.value?.dateTo ? this.toDayJsInstance(this.value.dateTo) : null
     },
-    minDateParsed() {
+    minDateParsed () {
       return this.minDate ? this.toDayJsInstance(this.minDate) : null
     },
-    maxDateParsed() {
+    maxDateParsed () {
       return this.maxDate ? this.toDayJsInstance(this.maxDate) : null
     },
-    excludeDatesParsed() {
+    excludeDatesParsed () {
       if (this.excludeDates && Array.isArray(this.excludeDates)) {
         return this.excludeDates.map(this.toDayJsInstance)
       }

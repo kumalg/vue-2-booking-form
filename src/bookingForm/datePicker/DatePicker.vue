@@ -89,7 +89,6 @@ import { SelectedTypes, Direction, OpenDirection } from './helpers'
 
 export default {
   name: 'DatePicker',
-  emits: ['update:dateFrom', 'update:dateTo'],
   mixins: [dayAndDateMixin, pointerMixin],
   props: {
     dateFromPlaceholder: {
@@ -102,7 +101,7 @@ export default {
   components: {
     Icon
   },
-  data() {
+  data () {
     return {
       selectedDateType: null,
       opened: false,
@@ -111,7 +110,7 @@ export default {
     }
   },
   methods: {
-    open() {
+    open () {
       if (this.opened) return
       this.opened = true
 
@@ -121,7 +120,7 @@ export default {
 
       this.adjustPosition()
     },
-    hide(event) {
+    hide (event) {
       const newFocused = event?.relatedTarget
       if (
         !this.opened ||
@@ -139,15 +138,15 @@ export default {
       this.$refs.dateToElement.blur()
       this.$refs.mainElement.blur()
     },
-    selectDateFrom() {
+    selectDateFrom () {
       this.selectedDateType = SelectedTypes.DATE_FROM
       this.open()
     },
-    selectDateTo() {
+    selectDateTo () {
       this.selectedDateType = SelectedTypes.DATE_TO
       this.open()
     },
-    previousMonth(resetPointer) {
+    previousMonth (resetPointer) {
       if (!this.canGoToPreviousMonth) return
       if (resetPointer) {
         this.pointer = null
@@ -155,7 +154,7 @@ export default {
       this.lastMonthChangeDirection = Direction.PREVIOUS
       this.currentMonth = this.currentMonth.subtract(1, 'month')
     },
-    nextMonth(resetPointer) {
+    nextMonth (resetPointer) {
       if (!this.canGoToNextMonth) return
       if (resetPointer) {
         this.pointer = null
@@ -163,7 +162,7 @@ export default {
       this.lastMonthChangeDirection = Direction.NEXT
       this.currentMonth = this.currentMonth.add(1, 'month')
     },
-    setDate(date) {
+    setDate (date) {
       let actualDate = date
       if (!actualDate && this.pointer) {
         actualDate = this.allVisibleDays[this.pointer].date
@@ -175,7 +174,7 @@ export default {
         this.setDateTo(actualDate)
       }
     },
-    setDateFrom(date) {
+    setDateFrom (date) {
       if (
         this.minDateParsed?.isAfter(date) ||
         this.maxDateParsed?.isBefore(date) ||
@@ -195,13 +194,14 @@ export default {
       }
       this.$refs.dateToElement.focus()
     },
-    setDateTo(date) {
+    setDateTo (date) {
       if (
         this.minDateParsed?.isAfter(date) ||
         this.maxDateParsed?.isBefore(date) ||
         this.excludeDatesParsed.some(d => d.isSame(date, 'day'))
-      )
+      ) {
         return
+      }
 
       if (this.dateFromParsed && this.excludeDatesParsed.some(d => d.isBetween(date, this.dateFromParsed, 'day'))) {
         return
@@ -216,7 +216,7 @@ export default {
         this.$refs.dateFromElement.focus()
       }
     },
-    adjustPosition() {
+    adjustPosition () {
       if (typeof window === 'undefined') return
       const spaceAbove = this.$el.getBoundingClientRect().top
       const spaceBelow = window.innerHeight - this.$el.getBoundingClientRect().bottom
@@ -228,7 +228,7 @@ export default {
         this.preferredOpenDirection = OpenDirection.ABOVE
       }
     },
-    calendarItemClassList({ otherMonth, selected, selectedFrom, selectedTo, today, excluded }, index) {
+    calendarItemClassList ({ otherMonth, selected, selectedFrom, selectedTo, today, excluded }, index) {
       return [
         'date-picker__calendar__item',
         {
@@ -244,25 +244,33 @@ export default {
     }
   },
   computed: {
-    calendarTransitionName() {
+    calendarTransitionName () {
       return this.lastMonthChangeDirection === Direction.PREVIOUS ? 'calendar-slide-previous' : 'calendar-slide-next'
     },
-    isAbove() {
+    isAbove () {
       return this.preferredOpenDirection === OpenDirection.ABOVE
     },
-    canGoToPreviousMonth() {
+    canGoToPreviousMonth () {
       return this.minDateParsed ? this.minDateParsed.isBefore(this.currentMonth, 'month') : true
     },
-    canGoToNextMonth() {
+    canGoToNextMonth () {
       return this.maxDateParsed ? this.maxDateParsed.isAfter(this.currentMonth, 'month') : true
     }
   },
   watch: {
-    tempDateFrom(val) {
-      this.$emit('update:dateFrom', val ? { year: val.year(), month: val.month() + 1, day: val.date() } : null)
+    tempDateFrom (val) {
+      const newValue = {
+        ...this.value,
+        dateFrom: val ? { year: val.year(), month: val.month() + 1, day: val.date() } : null
+      }
+      this.$emit('input', newValue)
     },
-    tempDateTo(val) {
-      this.$emit('update:dateTo', val ? { year: val.year(), month: val.month() + 1, day: val.date() } : null)
+    tempDateTo (val) {
+      const newValue = {
+        ...this.value,
+        dateTo: val ? { year: val.year(), month: val.month() + 1, day: val.date() } : null
+      }
+      this.$emit('input', newValue)
     }
   }
 }
@@ -275,7 +283,7 @@ export default {
     @include transition((transform, opacity));
   }
 
-  &-enter-from,
+  &-enter,
   &-leave-to {
     opacity: 0;
     transform: translateY(-16px);
@@ -289,7 +297,7 @@ export default {
     @include transition((opacity, transform), 0.3s);
   }
 
-  &-enter-from,
+  &-enter,
   &-leave-to {
     opacity: 0;
     position: absolute;
@@ -303,7 +311,7 @@ export default {
 $transform-size: 400% / 6;
 
 .calendar-slide-previous {
-  &-enter-from {
+  &-enter {
     transform: translateY(-$transform-size);
   }
 
@@ -313,7 +321,7 @@ $transform-size: 400% / 6;
 }
 
 .calendar-slide-next {
-  &-enter-from {
+  &-enter {
     transform: translateY($transform-size);
   }
 

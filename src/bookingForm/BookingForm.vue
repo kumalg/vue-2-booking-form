@@ -6,8 +6,7 @@
     </div>
     <div class="booking-form__date-picker">
       <DatePicker
-        v-model:dateFrom="tempDateFrom"
-        v-model:dateTo="tempDateTo"
+        v-model="tempValue"
         :dateFromPlaceholder="dateFromPlaceholder"
         :dateToPlaceholder="dateToPlaceholder"
         :minDate="minDate"
@@ -26,8 +25,10 @@ import DatePicker from './datePicker/DatePicker'
 
 export default {
   name: 'BookingForm',
-  emits: ['update:dateFrom', 'update:dateTo'],
   props: {
+    value: {
+      type: Object
+    },
     price: {
       type: Number,
       required: true
@@ -37,12 +38,6 @@ export default {
     },
     reviewsCount: {
       type: Number
-    },
-    dateFrom: {
-      type: Object
-    },
-    dateTo: {
-      type: Object
     },
     dateFromPlaceholder: {
       type: String
@@ -61,21 +56,17 @@ export default {
     }
   },
   components: { Rating, DatePicker },
-  data() {
+  data () {
     return {
-      tempDateFrom: this.dateFrom,
-      tempDateTo: this.dateTo
+      tempValue: this.dateRange
     }
   },
   methods: {
     currency
   },
   watch: {
-    tempDateFrom(newValue) {
-      this.$emit('update:dateFrom', newValue)
-    },
-    tempDateTo(newValue) {
-      this.$emit('update:dateTo', newValue)
+    tempValue (newValue) {
+      this.$emit('input', newValue)
     }
   }
 }

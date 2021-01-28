@@ -1,6 +1,6 @@
 <template>
   <div class="icon-wrapper" v-if="iconObject">
-    <svg version="1.1" :viewBox="iconObject.viewBox" :innerHTML="iconObject.content"></svg>
+    <svg version="1.1" :viewBox="iconObject.viewBox" v-html="iconObject.content"></svg>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ export default {
     }
   },
   computed: {
-    iconObject() {
+    iconObject () {
       return svgIcons[this.icon]
     }
   }

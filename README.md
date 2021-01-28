@@ -1,4 +1,4 @@
-# vue-3-booking-form
+# vue-2-booking-form
 
 ## Demo
 

@@ -38,7 +38,7 @@ export default {
     Icon
   },
   computed: {
-    filledStarsStyle() {
+    filledStarsStyle () {
       return {
         width: `${(100 * Math.min(this.value, this.max)) / this.max}%`
       }
