@@ -1,24 +1,18 @@
 <template>
   <div
+    ref="mainElement"
+    :class="['date-picker', { '--opened': opened }]"
     @keydown.down.prevent="pointerDown()"
     @keydown.up.prevent="pointerUp()"
     @keydown.left.prevent="pointerLeft()"
     @keydown.right.prevent="pointerRight()"
     @keydown.enter.prevent="setDate()"
     @keydown.esc="hide()"
-    ref="mainElement"
-    :class="['date-picker', { '--opened': opened }]"
-    tabindex="-1"
     @focus="open()"
+    tabindex="-1"
   >
     <div class="date-picker__inputs">
-      <div
-        ref="dateFromElement"
-        tabindex="1"
-        @focus="selectDateFrom()"
-        @blur="hide($event)"
-        :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_FROM }]"
-      >
+      <div ref="dateFromElement" @focus="selectDateFrom()" @blur="hide($event)" tabindex="1" class="date-picker__input">
         <div v-if="dateFromParsed" class="date-picker__input__value">
           {{ dateFromParsed.format('D MMM YYYY') }}
         </div>
@@ -30,13 +24,7 @@
         </span>
       </div>
       <Icon icon="arrowRight"></Icon>
-      <div
-        ref="dateToElement"
-        tabindex="1"
-        @focus="selectDateTo()"
-        @blur="hide($event)"
-        :class="['date-picker__input', { '--checked': selectedDateType === SelectedTypes.DATE_TO }]"
-      >
+      <div ref="dateToElement" @focus="selectDateTo()" @blur="hide($event)" tabindex="1" class="date-picker__input">
         <div v-if="dateToParsed" class="date-picker__input__value">
           {{ dateToParsed.format('D MMM YYYY') }}
         </div>
@@ -52,32 +40,28 @@
     <transition name="popup-fade">
       <div v-show="opened" :class="['date-picker__popup', { '--above': isAbove }]" @mousedown.prevent>
         <div class="date-picker__popup__header">
-          <button @click="previousMonth()" tabindex="-1" :disabled="!canGoToPreviousMonth">
+          <button @click="previousMonth()" :disabled="!canGoToPreviousMonth" tabindex="-1">
             <Icon icon="angleLeft"></Icon>
           </button>
           <div class="date-picker__popup__header__month">
-            <transition
-              :name="lastMonthChangeDirection === Direction.PREVIOUS ? 'calendar-slide-previous' : 'calendar-slide-next'"
-            >
+            <transition :name="calendarTransitionName">
               <div :key="currentMonth.format('MM-YYYY')">{{ currentMonth.format('MMMM YYYY') }}</div>
             </transition>
           </div>
-          <button @click="nextMonth()" tabindex="-1" :disabled="!canGoToNextMonth">
+          <button :disabled="!canGoToNextMonth" @click="nextMonth()" tabindex="-1">
             <Icon icon="angleRight"></Icon>
           </button>
         </div>
 
         <div class="date-picker__popup__weekdays">
-          <div class="date-picker__popup__weekdays__day" v-for="weekday in weekdays" :key="weekday">
+          <div v-for="weekday in weekdays" :key="weekday" class="date-picker__popup__weekdays__day">
             {{ weekday }}
           </div>
         </div>
 
         <div class="date-picker__popup__calendar-container">
-          <transition
-            :name="lastMonthChangeDirection === Direction.PREVIOUS ? 'calendar-slide-previous' : 'calendar-slide-next'"
-          >
-            <div class="date-picker__calendar" :key="currentMonth.format('MM-YYYY')">
+          <transition :name="calendarTransitionName">
+            <div :key="currentMonth.format('MM-YYYY')" class="date-picker__calendar">
               <div
                 v-for="(dateObj, index) in allVisibleDays"
                 :key="dateObj.date.format('DD-MM-YYYY')"
@@ -107,6 +91,10 @@ import localeData from 'dayjs/plugin/localeData'
 import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
 
+import pointerMixin from './pointerMixin'
+import { SelectedTypes, Direction, OpenDirection } from './types'
+import { calendarViewDaysCount } from '../helpers'
+
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isToday)
@@ -115,24 +103,9 @@ dayjs.extend(objectSupport)
 dayjs.extend(updateLocale)
 dayjs.locale('pl')
 
-const SelectedTypes = {
-  DATE_FROM: 'date_from',
-  DATE_TO: 'date_to'
-}
-
-const Direction = {
-  PREVIOUS: 'previous',
-  NEXT: 'next'
-}
-
-const OpenDirection = {
-  BELOW: 'below',
-  ABOVE: 'above'
-}
-
-const calendarViewDaysCount = 7 * 6
-
 export default {
+  name: 'DatePicker',
+  mixins: [pointerMixin],
   props: {
     dateFrom: {
       type: Object
@@ -155,8 +128,6 @@ export default {
   },
   data() {
     return {
-      Direction,
-      SelectedTypes,
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
@@ -164,62 +135,10 @@ export default {
       selectedDateType: null,
       opened: false,
       lastMonthChangeDirection: Direction.NEXT,
-      preferredOpenDirection: OpenDirection.BELOW,
-      pointer: null
+      preferredOpenDirection: OpenDirection.BELOW
     }
   },
   methods: {
-    pointerSet(index) {
-      this.pointer = index
-    },
-    pointerDown() {
-      if (this.pointer !== null) {
-        if (this.pointer + 7 >= calendarViewDaysCount) {
-          this.nextMonth()
-          this.pointer = (this.pointer + 7) % calendarViewDaysCount
-        } else {
-          this.pointer += 7
-        }
-      } else {
-        this.pointer = 0
-      }
-    },
-    pointerUp() {
-      if (this.pointer !== null) {
-        if (this.pointer < 7) {
-          this.previousMonth()
-          this.pointer = calendarViewDaysCount + this.pointer - 7
-        } else {
-          this.pointer -= 7
-        }
-      } else {
-        this.pointer = calendarViewDaysCount - 7
-      }
-    },
-    pointerLeft() {
-      if (this.pointer !== null) {
-        if (this.pointer < 1) {
-          this.previousMonth()
-          this.pointer = calendarViewDaysCount - 1
-        } else {
-          this.pointer -= 1
-        }
-      } else {
-        this.pointer = calendarViewDaysCount - 1
-      }
-    },
-    pointerRight() {
-      if (this.pointer !== null) {
-        if (this.pointer >= calendarViewDaysCount - 1) {
-          this.nextMonth()
-          this.pointer = 0
-        } else {
-          this.pointer += 1
-        }
-      } else {
-        this.pointer = 0
-      }
-    },
     open() {
       if (this.opened) return
       this.opened = true
@@ -336,6 +255,9 @@ export default {
     }
   },
   computed: {
+    calendarTransitionName() {
+      return this.lastMonthChangeDirection === Direction.PREVIOUS ? 'calendar-slide-previous' : 'calendar-slide-next'
+    },
     previousMonthDays() {
       const previousMonth = this.currentMonth.subtract(1, 'month')
       const year = previousMonth.year()
@@ -515,17 +437,17 @@ $transform-size: 400% / 6;
       @include transition(color);
     }
 
-    &.--checked {
+    &:focus {
       background-color: rgba($primary, 0.1);
     }
 
     &:hover &__placeholder,
-    &.--checked &__placeholder {
+    &:focus &__placeholder {
       color: rgba($primary, 0.5);
     }
 
     &:hover &__value,
-    &.--checked &__value {
+    &:focus &__value {
       color: $primary;
     }
 

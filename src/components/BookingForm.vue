@@ -18,9 +18,10 @@
 </template>
 
 <script>
-import currency from '@/filters/currency'
-import Rating from './Rating.vue'
-import DatePicker from './DatePicker.vue'
+import { currency } from './helpers'
+
+import Rating from './Rating'
+import DatePicker from './datePicker/DatePicker'
 
 export default {
   components: { Rating, DatePicker },

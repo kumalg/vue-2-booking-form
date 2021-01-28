@@ -24,8 +24,8 @@ export default {
     },
     value: {
       type: Number,
-      default: 0
-      // validator: prop => prop >= 0 && prop <= this.max
+      default: 0,
+      validator: prop => prop >= 0
     },
     reviewsCount: {
       type: Number,
