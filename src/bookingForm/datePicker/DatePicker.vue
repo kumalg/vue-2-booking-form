@@ -332,7 +332,7 @@ $transform-size: 400% / 6;
 
 .date-picker {
   position: relative;
-  min-width: 320px;
+  min-width: 300px;
   outline: none;
 
   &.--opened &__inputs {

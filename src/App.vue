@@ -76,6 +76,7 @@ export default {
   justify-content: center;
   flex-direction: column;
   height: 100%;
+  padding: 8px;
 }
 
 .app-booking-form {
@@ -88,5 +89,6 @@ export default {
   font-size: 0.875rem;
   color: $text-secondary;
   min-height: 128px;
+  padding: 8px;
 }
 </style>
