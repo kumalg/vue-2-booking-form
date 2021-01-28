@@ -1,5 +1,5 @@
 name: Deploy to Firebase Hosting
-'on':
+"on":
   push:
     branches:
       - master
@@ -12,9 +12,9 @@ jobs:
       - run: yarn test:unit
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_VUE_3_BOOKING_FORM }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_VUE_2_BOOKING_FORM }}"
           channelId: live
-          projectId: vue-3-booking-form
+          projectId: vue-2-booking-form
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels

@@ -2,9 +2,9 @@
 
 ## Demo
 
-<https://vue-3-booking-form.firebaseapp.com>
+<https://vue-2-booking-form.firebaseapp.com>
 
-![vue-3-booking-form/thumb.png](https://github.com/kumalg/vue-3-booking-form/blob/master/thumb.png)
+![vue-2-booking-form/thumb.png](https://github.com/kumalg/vue-2-booking-form/blob/master/thumb.png)
 
 ## Features
 
