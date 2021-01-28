@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { currency } from './helpers'
+import currency from './currency'
 
 import Rating from './Rating'
 import DatePicker from './datePicker/DatePicker'

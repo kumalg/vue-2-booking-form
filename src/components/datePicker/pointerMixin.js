@@ -1,4 +1,4 @@
-import { calendarViewDaysCount } from '../helpers'
+import { CALENDAR_DAYS_COUNT } from './helpers'
 
 export default {
   data() {
@@ -12,9 +12,9 @@ export default {
     },
     pointerDown() {
       if (this.pointer !== null) {
-        if (this.pointer + 7 >= calendarViewDaysCount) {
+        if (this.pointer + 7 >= CALENDAR_DAYS_COUNT) {
           this.nextMonth()
-          this.pointer = (this.pointer + 7) % calendarViewDaysCount
+          this.pointer = (this.pointer + 7) % CALENDAR_DAYS_COUNT
         } else {
           this.pointer += 7
         }
@@ -26,29 +26,29 @@ export default {
       if (this.pointer !== null) {
         if (this.pointer < 7) {
           this.previousMonth()
-          this.pointer = calendarViewDaysCount + this.pointer - 7
+          this.pointer = CALENDAR_DAYS_COUNT + this.pointer - 7
         } else {
           this.pointer -= 7
         }
       } else {
-        this.pointer = calendarViewDaysCount - 7
+        this.pointer = CALENDAR_DAYS_COUNT - 7
       }
     },
     pointerLeft() {
       if (this.pointer !== null) {
         if (this.pointer < 1) {
           this.previousMonth()
-          this.pointer = calendarViewDaysCount - 1
+          this.pointer = CALENDAR_DAYS_COUNT - 1
         } else {
           this.pointer -= 1
         }
       } else {
-        this.pointer = calendarViewDaysCount - 1
+        this.pointer = CALENDAR_DAYS_COUNT - 1
       }
     },
     pointerRight() {
       if (this.pointer !== null) {
-        if (this.pointer >= calendarViewDaysCount - 1) {
+        if (this.pointer >= CALENDAR_DAYS_COUNT - 1) {
           this.nextMonth()
           this.pointer = 0
         } else {

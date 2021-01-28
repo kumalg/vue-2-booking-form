@@ -92,8 +92,7 @@ import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
 
 import pointerMixin from './pointerMixin'
-import { SelectedTypes, Direction, OpenDirection } from './types'
-import { calendarViewDaysCount } from '../helpers'
+import { CALENDAR_DAYS_COUNT, SelectedTypes, Direction, OpenDirection } from './helpers'
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -279,7 +278,7 @@ export default {
       const nextMonth = this.currentMonth.add(1, 'month')
       const year = nextMonth.year()
       const month = nextMonth.month()
-      const needsDays = calendarViewDaysCount - this.previousMonthDays.length - this.currentMonthDays.length
+      const needsDays = CALENDAR_DAYS_COUNT - this.previousMonthDays.length - this.currentMonthDays.length
 
       return Array.from({ length: needsDays }, (_, i) => i + 1).map(day => dayjs({ year, month, day }))
     },
