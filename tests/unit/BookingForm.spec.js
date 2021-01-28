@@ -1,12 +1,12 @@
 import { shallowMount } from '@vue/test-utils'
-import BookingForm from '@/bookingForm/BookingForm'
+import BookingForm from '@/bookingForm/BookingForm.vue'
 
 describe('BookingForm.vue', () => {
   it('should render price', () => {
     const price = 259
 
     const wrapper = shallowMount(BookingForm, {
-      props: { price }
+      propsData: { price }
     })
 
     const priceElement = wrapper.find('.booking-form__price')
