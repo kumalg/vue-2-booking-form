@@ -2,35 +2,37 @@
   <div class="app">
     <div class="app-booking-form">
       <BookingForm
-        v-model="form.dateRange"
-        dateFromPlaceholder="Check In"
-        dateToPlaceholder="Check Out"
-        :price="form.price"
-        :rating="form.rating"
-        :reviewsCount="form.reviewsCount"
-        :minDate="minDate"
-        :maxDate="maxDate"
-        :excludeDates="excludeDates"
+        v-model="form"
+        :dateFromPlaceholder="props.dateFromPlaceholder"
+        :dateToPlaceholder="props.dateToPlaceholder"
+        :price="props.price"
+        :rating="props.rating"
+        :reviewsCount="props.reviewsCount"
+        :minDate="props.minDate"
+        :maxDate="props.maxDate"
+        :excludeDates="props.excludeDates"
       ></BookingForm>
     </div>
     <div class="app-form">
-      {{ form }}
+      <div><b>props:</b> {{ props }}</div>
+      <div><b>model:</b> {{ form }}</div>
     </div>
     <div class="app-booking-form">
       <BookingForm
-        v-model="form2.dateRange"
-        dateFromPlaceholder="Check In"
-        dateToPlaceholder="Check Out"
-        :price="form2.price"
-        :rating="form2.rating"
-        :reviewsCount="form2.reviewsCount"
-        :minDate="minDate"
-        :maxDate="maxDate"
-        :excludeDates="excludeDates"
+        v-model="form2"
+        :dateFromPlaceholder="props.dateFromPlaceholder"
+        :dateToPlaceholder="props.dateToPlaceholder"
+        :price="props2.price"
+        :rating="props2.rating"
+        :reviewsCount="props2.reviewsCount"
+        :minDate="props2.minDate"
+        :maxDate="props2.maxDate"
+        :excludeDates="props2.excludeDates"
       ></BookingForm>
     </div>
     <div class="app-form">
-      {{ form2 }}
+      <div><b>props:</b> {{ props2 }}</div>
+      <div><b>model:</b> {{ form2 }}</div>
     </div>
   </div>
 </template>
@@ -43,50 +45,76 @@ export default {
   components: { BookingForm },
   data () {
     return {
-      form: {
+      props: {
+        dateFromPlaceholder: 'Check In',
+        dateToPlaceholder: 'Check Out',
         price: 298,
         rating: 3.5,
         reviewsCount: 123,
-        dateRange: {
-          dateFrom: {
+        minDate: {
+          year: 2020,
+          month: 12,
+          day: 15
+        },
+        maxDate: {
+          year: 2021,
+          month: 12,
+          day: 15
+        },
+        excludeDates: [
+          {
             year: 2021,
             month: 1,
-            day: 15
+            day: 6
           },
-          dateTo: null
-        }
+          {
+            year: 2021,
+            month: 1,
+            day: 7
+          }
+        ]
+      },
+      form: {
+        dateFrom: {
+          year: 2021,
+          month: 1,
+          day: 15
+        },
+        dateTo: null
+      },
+      props2: {
+        dateFromPlaceholder: 'Check In',
+        dateToPlaceholder: 'Check Out',
+        price: 298,
+        rating: 3.5,
+        reviewsCount: 123,
+        minDate: {
+          year: 2020,
+          month: 12,
+          day: 15
+        },
+        maxDate: {
+          year: 2021,
+          month: 12,
+          day: 15
+        },
+        excludeDates: [
+          {
+            year: 2021,
+            month: 1,
+            day: 6
+          },
+          {
+            year: 2021,
+            month: 1,
+            day: 7
+          }
+        ]
       },
       form2: {
-        price: 499.99,
-        rating: 4.5,
-        reviewsCount: 6436,
-        dateRange: {
-          dateFrom: null,
-          dateTo: null
-        }
-      },
-      minDate: {
-        year: 2020,
-        month: 12,
-        day: 15
-      },
-      maxDate: {
-        year: 2021,
-        month: 12,
-        day: 15
-      },
-      excludeDates: [
-        {
-          year: 2021,
-          month: 1,
-          day: 6
-        },
-        {
-          year: 2021,
-          month: 1,
-          day: 7
-        }
-      ]
+        dateFrom: null,
+        dateTo: null
+      }
     }
   }
 }
