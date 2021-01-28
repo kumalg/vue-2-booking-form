@@ -12,6 +12,7 @@
   - <kbd>Tab</kbd> keyboard navigation to change input ("date from" or "date to")
   - <kbd>←</kbd> <kbd>↑</kbd> <kbd>→</kbd> <kbd>↓</kbd> keyboard navigation to change highlighted day in calendar and <kbd>Enter</kbd> to accept
   - <kbd>Esc</kbd> to close calendar popup
+- Highlighted today
 - Minimum valid date
 - Maximum valid date
 - List of excluded days

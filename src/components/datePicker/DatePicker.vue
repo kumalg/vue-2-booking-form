@@ -334,6 +334,7 @@ $transform-size: 400% / 6;
     border-radius: 48px;
     align-items: center;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
     @include transition((border-color));
   }
 
@@ -343,10 +344,10 @@ $transform-size: 400% / 6;
     padding: 8px 12px;
     border-radius: 40px;
     font-size: 0.875rem;
-    cursor: pointer;
     display: flex;
     align-items: center;
     outline: none;
+    cursor: pointer;
     @include transition(background-color);
 
     &__value,
@@ -464,10 +465,11 @@ $transform-size: 400% / 6;
       margin: 4px 0;
       box-sizing: border-box;
       position: relative;
-      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
 
-      &.--excluded {
-        cursor: default;
+      &:not(.--excluded) {
+        cursor: pointer;
       }
 
       &__inner {
