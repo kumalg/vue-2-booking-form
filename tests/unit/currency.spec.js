@@ -1,4 +1,4 @@
-import currency from '@/filters/currency'
+import currency from '@/currency'
 
 // Needs Node 13+ https://stackoverflow.com/a/56624712/7526135
 describe('currency', () => {
