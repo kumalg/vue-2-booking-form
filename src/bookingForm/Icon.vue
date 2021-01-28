@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import * as svgIcons from '@/assets/icons'
+import * as svgIcons from './icons'
 
 export default {
   name: 'Icon',

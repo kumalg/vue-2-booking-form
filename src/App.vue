@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import BookingForm from './components/BookingForm.vue'
+import BookingForm from './bookingForm/BookingForm'
 
 export default {
   name: 'App',

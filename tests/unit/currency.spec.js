@@ -1,4 +1,4 @@
-import currency from '@/currency'
+import currency from '@/bookingForm/currency'
 
 // Needs Node 13+ https://stackoverflow.com/a/56624712/7526135
 describe('currency', () => {

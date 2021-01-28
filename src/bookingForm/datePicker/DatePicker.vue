@@ -82,6 +82,7 @@
 </template>
 
 <script>
+import Icon from '../Icon'
 import pointerMixin from './pointerMixin'
 import dayAndDateMixin from './dayAndDateMixin'
 import { SelectedTypes, Direction, OpenDirection } from './helpers'
@@ -96,6 +97,9 @@ export default {
     dateToPlaceholder: {
       type: String
     }
+  },
+  components: {
+    Icon
   },
   data() {
     return {

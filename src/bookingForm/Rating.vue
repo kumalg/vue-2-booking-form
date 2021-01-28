@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import Icon from './Icon'
+
 export default {
   name: 'Rating',
   props: {
@@ -31,6 +33,9 @@ export default {
       type: Number,
       validator: prop => prop >= 0
     }
+  },
+  components: {
+    Icon
   },
   computed: {
     filledStarsStyle() {

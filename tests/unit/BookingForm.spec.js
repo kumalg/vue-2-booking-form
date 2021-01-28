@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import BookingForm from '@/components/BookingForm.vue'
+import BookingForm from '@/bookingForm/BookingForm'
 
 describe('BookingForm.vue', () => {
   it('should render price', () => {
