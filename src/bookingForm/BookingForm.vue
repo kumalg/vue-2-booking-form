@@ -58,7 +58,7 @@ export default {
   components: { Rating, DatePicker },
   data () {
     return {
-      tempValue: this.dateRange
+      tempValue: this.value
     }
   },
   methods: {
