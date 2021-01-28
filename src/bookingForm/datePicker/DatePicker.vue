@@ -9,6 +9,7 @@
     @keydown.enter.prevent="setDate()"
     @keydown.esc="hide()"
     @focus="open()"
+    @blur="hide($event)"
     tabindex="-1"
   >
     <div class="date-picker__inputs">
@@ -52,7 +53,7 @@
     <transition name="popup-fade">
       <div v-show="opened" :class="['date-picker__popup', { '--above': isAbove }]" @mousedown.prevent>
         <div class="date-picker__popup__header">
-          <button @click="previousMonth(true)" :disabled="!canGoToPreviousMonth" tabindex="-1">
+          <button :disabled="!canGoToPreviousMonth" @click="previousMonth(true)" tabindex="-1">
             <Icon icon="angleLeft"></Icon>
           </button>
           <div class="date-picker__popup__header__month">
