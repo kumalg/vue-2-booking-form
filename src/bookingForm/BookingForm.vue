@@ -25,11 +25,8 @@ import Rating from './Rating'
 import DatePicker from './datePicker/DatePicker'
 
 export default {
-  components: { Rating, DatePicker },
   name: 'BookingForm',
-  methods: {
-    currency
-  },
+  emits: ['update:dateFrom', 'update:dateTo'],
   props: {
     price: {
       type: Number,
@@ -63,11 +60,15 @@ export default {
       type: Array
     }
   },
+  components: { Rating, DatePicker },
   data() {
     return {
       tempDateFrom: this.dateFrom,
       tempDateTo: this.dateTo
     }
+  },
+  methods: {
+    currency
   },
   watch: {
     tempDateFrom(newValue) {

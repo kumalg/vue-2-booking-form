@@ -52,6 +52,9 @@ export default {
     },
     getWeekdays() {
       return dayjs.weekdaysShort(true)
+    },
+    toDayJsInstance({ year, month, day }) {
+      return dayjs({ year, month: month - 1, day })
     }
   },
   computed: {
@@ -98,36 +101,20 @@ export default {
       })
     },
     dateFromParsed() {
-      if (this.dateFrom) {
-        const { year, month, day } = this.dateFrom
-        return dayjs({ year, month: month - 1, day })
-      }
-      return null
+      return this.dateFrom ? this.toDayJsInstance(this.dateFrom) : null
     },
     dateToParsed() {
-      if (this.dateTo) {
-        const { year, month, day } = this.dateTo
-        return dayjs({ year, month: month - 1, day })
-      }
-      return null
+      return this.dateTo ? this.toDayJsInstance(this.dateTo) : null
     },
     minDateParsed() {
-      if (this.minDate) {
-        const { year, month, day } = this.minDate
-        return dayjs({ year, month: month - 1, day })
-      }
-      return null
+      return this.minDate ? this.toDayJsInstance(this.minDate) : null
     },
     maxDateParsed() {
-      if (this.maxDate) {
-        const { year, month, day } = this.maxDate
-        return dayjs({ year, month: month - 1, day })
-      }
-      return null
+      return this.maxDate ? this.toDayJsInstance(this.maxDate) : null
     },
     excludeDatesParsed() {
       if (this.excludeDates && Array.isArray(this.excludeDates)) {
-        return this.excludeDates.map(({ year, month, day }) => dayjs({ year, month: month - 1, day }))
+        return this.excludeDates.map(this.toDayJsInstance)
       }
       return []
     }

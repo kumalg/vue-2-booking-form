@@ -89,6 +89,7 @@ import { SelectedTypes, Direction, OpenDirection } from './helpers'
 
 export default {
   name: 'DatePicker',
+  emits: ['update:dateFrom', 'update:dateTo'],
   mixins: [dayAndDateMixin, pointerMixin],
   props: {
     dateFromPlaceholder: {
