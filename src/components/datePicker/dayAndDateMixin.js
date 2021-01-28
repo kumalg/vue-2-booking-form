@@ -1,5 +1,6 @@
 import 'dayjs/locale/pl'
 import dayjs from 'dayjs'
+import isBetween from 'dayjs/plugin/isBetween'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isToday from 'dayjs/plugin/isToday'
@@ -9,6 +10,7 @@ import objectSupport from 'dayjs/plugin/objectSupport'
 
 import { CALENDAR_DAYS_COUNT } from './helpers'
 
+dayjs.extend(isBetween)
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isToday)
@@ -18,8 +20,27 @@ dayjs.extend(updateLocale)
 dayjs.locale('pl')
 
 export default {
+  props: {
+    dateFrom: {
+      type: Object
+    },
+    dateTo: {
+      type: Object
+    },
+    minDate: {
+      type: Object
+    },
+    maxDate: {
+      type: Object
+    },
+    excludeDates: {
+      type: Array
+    }
+  },
   data() {
     return {
+      tempDateFrom: this.dateFrom,
+      tempDateTo: this.dateTo,
       currentMonth: this.getInitialMonth(),
       weekdays: this.getWeekdays()
     }
@@ -68,7 +89,10 @@ export default {
           selectedFrom: this.dateFromParsed?.isSame(d, 'day'),
           selectedTo: this.dateToParsed?.isSame(d, 'day'),
           otherMonth: !this.currentMonth.isSame(d, 'month'),
-          excluded: this.minDateParsed?.isAfter(d, 'day') || this.maxDateParsed?.isBefore(d, 'day'),
+          excluded:
+            this.minDateParsed?.isAfter(d, 'day') ||
+            this.maxDateParsed?.isBefore(d, 'day') ||
+            this.excludeDatesParsed.some(day => day.isSame(d, 'day')),
           today: d.isToday()
         }
       })
@@ -100,6 +124,12 @@ export default {
         return dayjs({ year, month: month - 1, day })
       }
       return null
+    },
+    excludeDatesParsed() {
+      if (this.excludeDates && Array.isArray(this.excludeDates)) {
+        return this.excludeDates.map(({ year, month, day }) => dayjs({ year, month: month - 1, day }))
+      }
+      return []
     }
   }
 }

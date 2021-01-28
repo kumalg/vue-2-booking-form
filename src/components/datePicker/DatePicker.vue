@@ -40,7 +40,7 @@
     <transition name="popup-fade">
       <div v-show="opened" :class="['date-picker__popup', { '--above': isAbove }]" @mousedown.prevent>
         <div class="date-picker__popup__header">
-          <button @click="previousMonth()" :disabled="!canGoToPreviousMonth" tabindex="-1">
+          <button @click="previousMonth(true)" :disabled="!canGoToPreviousMonth" tabindex="-1">
             <Icon icon="angleLeft"></Icon>
           </button>
           <div class="date-picker__popup__header__month">
@@ -48,7 +48,7 @@
               <div :key="currentMonth.format('MM-YYYY')">{{ currentMonth.format('MMMM YYYY') }}</div>
             </transition>
           </div>
-          <button :disabled="!canGoToNextMonth" @click="nextMonth()" tabindex="-1">
+          <button :disabled="!canGoToNextMonth" @click="nextMonth(true)" tabindex="-1">
             <Icon icon="angleRight"></Icon>
           </button>
         </div>
@@ -90,18 +90,6 @@ export default {
   name: 'DatePicker',
   mixins: [dayAndDateMixin, pointerMixin],
   props: {
-    dateFrom: {
-      type: Object
-    },
-    dateTo: {
-      type: Object
-    },
-    minDate: {
-      type: Object
-    },
-    maxDate: {
-      type: Object
-    },
     dateFromPlaceholder: {
       type: String
     },
@@ -111,8 +99,6 @@ export default {
   },
   data() {
     return {
-      tempDateFrom: this.dateFrom,
-      tempDateTo: this.dateTo,
       selectedDateType: null,
       opened: false,
       lastMonthChangeDirection: Direction.NEXT,
@@ -156,12 +142,19 @@ export default {
       this.selectedDateType = SelectedTypes.DATE_TO
       this.open()
     },
-    previousMonth() {
+    previousMonth(resetPointer) {
       if (!this.canGoToPreviousMonth) return
+      if (resetPointer) {
+        this.pointer = null
+      }
       this.lastMonthChangeDirection = Direction.PREVIOUS
       this.currentMonth = this.currentMonth.subtract(1, 'month')
     },
-    nextMonth() {
+    nextMonth(resetPointer) {
+      if (!this.canGoToNextMonth) return
+      if (resetPointer) {
+        this.pointer = null
+      }
       this.lastMonthChangeDirection = Direction.NEXT
       this.currentMonth = this.currentMonth.add(1, 'month')
     },
@@ -178,8 +171,17 @@ export default {
       }
     },
     setDateFrom(date) {
-      if (this.minDateParsed?.isAfter(date) || this.maxDateParsed?.isBefore(date)) return
+      if (
+        this.minDateParsed?.isAfter(date) ||
+        this.maxDateParsed?.isBefore(date) ||
+        this.excludeDatesParsed.some(d => d.isSame(date, 'day'))
+      ) {
+        return
+      }
 
+      if (this.dateToParsed && this.excludeDatesParsed.some(d => d.isBetween(date, this.dateToParsed, 'day'))) {
+        return
+      }
       if (this.dateToParsed && this.dateToParsed.isBefore(date)) {
         this.tempDateFrom = date
         this.setDateTo(null)
@@ -189,8 +191,16 @@ export default {
       this.$refs.dateToElement.focus()
     },
     setDateTo(date) {
-      if (this.minDateParsed?.isAfter(date) || this.maxDateParsed?.isBefore(date)) return
+      if (
+        this.minDateParsed?.isAfter(date) ||
+        this.maxDateParsed?.isBefore(date) ||
+        this.excludeDatesParsed.some(d => d.isSame(date, 'day'))
+      )
+        return
 
+      if (this.dateFromParsed && this.excludeDatesParsed.some(d => d.isBetween(date, this.dateFromParsed, 'day'))) {
+        return
+      }
       if (this.dateFromParsed && this.dateFromParsed.isAfter(date)) {
         this.tempDateTo = null
         this.setDateFrom(date)
@@ -456,6 +466,10 @@ $transform-size: 400% / 6;
       position: relative;
       cursor: pointer;
 
+      &.--excluded {
+        cursor: default;
+      }
+
       &__inner {
         position: relative;
         $size: 32px;
@@ -480,7 +494,11 @@ $transform-size: 400% / 6;
         @include transition((background-color));
       }
 
-      &:not(.--selected-from):not(.--selected-to).--highlighted &__inner {
+      &:not(.--selected-from):not(.--selected-to).--excluded.--highlighted &__inner {
+        background-color: rgba($border, 0.25);
+      }
+
+      &:not(.--selected-from):not(.--selected-to):not(.--excluded).--highlighted &__inner {
         background-color: rgba($primary, 0.1);
         color: $primary;
       }

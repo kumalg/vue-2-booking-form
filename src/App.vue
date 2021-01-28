@@ -11,6 +11,7 @@
       :reviewsCount="form.reviewsCount"
       :minDate="minDate"
       :maxDate="maxDate"
+      :excludeDates="excludeDates"
     ></BookingForm>
   </div>
 </template>
@@ -33,6 +34,18 @@ export default {
         month: 12,
         day: 15
       },
+      excludeDates: [
+        {
+          year: 2021,
+          month: 1,
+          day: 27
+        },
+        {
+          year: 2021,
+          month: 1,
+          day: 22
+        }
+      ],
       form: {
         price: 298,
         rating: 3.5,

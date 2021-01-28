@@ -12,6 +12,7 @@
         :dateToPlaceholder="dateToPlaceholder"
         :minDate="minDate"
         :maxDate="maxDate"
+        :excludeDates="excludeDates"
       ></DatePicker>
     </div>
   </div>
