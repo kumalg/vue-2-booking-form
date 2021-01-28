@@ -12,7 +12,13 @@
     tabindex="-1"
   >
     <div class="date-picker__inputs">
-      <div ref="dateFromElement" @focus="selectDateFrom()" @blur="hide($event)" tabindex="1" class="date-picker__input">
+      <div
+        ref="dateFromElement"
+        :tabindex="dateFromTabindex"
+        @focus="selectDateFrom()"
+        @blur="hide($event)"
+        class="date-picker__input"
+      >
         <div v-if="dateFromParsed" class="date-picker__input__value">
           {{ dateFromParsed.format('D MMM YYYY') }}
         </div>
@@ -24,7 +30,13 @@
         </span>
       </div>
       <Icon icon="arrowRight"></Icon>
-      <div ref="dateToElement" @focus="selectDateTo()" @blur="hide($event)" tabindex="1" class="date-picker__input">
+      <div
+        ref="dateToElement"
+        :tabindex="dateToTabindex"
+        @focus="selectDateTo()"
+        @blur="hide($event)"
+        class="date-picker__input"
+      >
         <div v-if="dateToParsed" class="date-picker__input__value">
           {{ dateToParsed.format('D MMM YYYY') }}
         </div>
@@ -100,6 +112,14 @@ export default {
     },
     dateToPlaceholder: {
       type: String
+    },
+    dateFromTabindex: {
+      type: Number,
+      default: 0
+    },
+    dateToTabindex: {
+      type: Number,
+      default: 0
     }
   },
   components: {

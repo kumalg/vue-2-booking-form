@@ -12,6 +12,8 @@
         :minDate="minDate"
         :maxDate="maxDate"
         :excludeDates="excludeDates"
+        :dateFromTabindex="dateFromTabindex"
+        :dateToTabindex="dateToTabindex"
       ></DatePicker>
     </div>
   </div>
@@ -53,6 +55,14 @@ export default {
     },
     excludeDates: {
       type: Array
+    },
+    dateFromTabindex: {
+      type: Number,
+      default: 0
+    },
+    dateToTabindex: {
+      type: Number,
+      default: 0
     }
   },
   components: { Rating, DatePicker },
