@@ -418,6 +418,7 @@ $transform-size: 400% / 6;
     border-radius: 24px;
     overflow: hidden;
     padding: 24px;
+    z-index: 1000;
 
     &.--above {
       top: initial;

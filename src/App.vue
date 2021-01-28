@@ -16,6 +16,22 @@
     <div class="app-form">
       {{ form }}
     </div>
+    <div class="app-booking-form">
+      <BookingForm
+        v-model="form2.dateRange"
+        dateFromPlaceholder="Check In"
+        dateToPlaceholder="Check Out"
+        :price="form2.price"
+        :rating="form2.rating"
+        :reviewsCount="form2.reviewsCount"
+        :minDate="minDate"
+        :maxDate="maxDate"
+        :excludeDates="excludeDates"
+      ></BookingForm>
+    </div>
+    <div class="app-form">
+      {{ form2 }}
+    </div>
   </div>
 </template>
 
@@ -31,6 +47,19 @@ export default {
         price: 298,
         rating: 3.5,
         reviewsCount: 123,
+        dateRange: {
+          dateFrom: {
+            year: 2021,
+            month: 1,
+            day: 15
+          },
+          dateTo: null
+        }
+      },
+      form2: {
+        price: 499.99,
+        rating: 4.5,
+        reviewsCount: 6436,
         dateRange: {
           dateFrom: null,
           dateTo: null
