@@ -14,7 +14,7 @@
       ></BookingForm>
     </div>
     <div class="app-form">
-      <!-- {{ form }} -->
+      {{ form }}
     </div>
   </div>
 </template>

@@ -445,11 +445,15 @@ $transform-size: 400% / 6;
         background: transparent;
         border: none;
         line-height: 0;
-        @include transition((color));
+        @include transition((color, opacity));
 
         &:not(:disabled):hover {
           color: $primary;
           cursor: pointer;
+        }
+
+        &:disabled {
+          opacity: 0.25;
         }
       }
     }
