@@ -86,4 +86,51 @@ describe('DatePicker.vue', () => {
     })
     expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/10 Oct 2020/)
   })
+
+  it('should clear "date from" value when clear button clicked', async () => {
+    var parent = mount({
+      data () {
+        return {
+          model: {
+            dateFrom: {
+              year: 2020,
+              month: 10,
+              day: 10
+            }
+          }
+        }
+      },
+      template: '<div> <date-picker v-model="model" dateFromPlaceholder="Check In"></date-picker> </div>',
+      components: { 'date-picker': DatePicker }
+    })
+    expect(parent.findAll('.date-picker__input').at(0).text()).toMatch(/10 Oct 2020/)
+
+    parent.findAll('.date-picker__input__clear').at(0).trigger('click')
+    await parent.vm.$nextTick()
+
+    expect(parent.findAll('.date-picker__input').at(0).text()).toMatch(/Check In/)
+  })
+  it('should clear "date to" value when clear button clicked', async () => {
+    var parent = mount({
+      data () {
+        return {
+          model: {
+            dateTo: {
+              year: 2020,
+              month: 10,
+              day: 10
+            }
+          }
+        }
+      },
+      template: '<div> <date-picker v-model="model" dateToPlaceholder="Check Out"></date-picker> </div>',
+      components: { 'date-picker': DatePicker }
+    })
+    expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/10 Oct 2020/)
+
+    parent.findAll('.date-picker__input__clear').at(1).trigger('click')
+    await parent.vm.$nextTick()
+
+    expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/Check Out/)
+  })
 })
