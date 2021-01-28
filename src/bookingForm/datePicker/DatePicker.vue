@@ -61,7 +61,11 @@
 
         <div class="date-picker__popup__calendar-container">
           <transition :name="calendarTransitionName">
-            <div :key="currentMonth.format('MM-YYYY')" class="date-picker__calendar">
+            <div
+              :key="currentMonth.format('MM-YYYY')"
+              class="date-picker__calendar"
+              @mouseleave.self="pointerSet(null)"
+            >
               <div
                 v-for="(dateObj, index) in allVisibleDays"
                 :key="dateObj.date.format('DD-MM-YYYY')"

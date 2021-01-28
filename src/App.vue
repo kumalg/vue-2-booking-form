@@ -3,8 +3,8 @@
     <div class="app-booking-form">
       <BookingForm
         v-model="form.dateRange"
-        dateFromPlaceholder="Przyjazd"
-        dateToPlaceholder="Wyjazd"
+        dateFromPlaceholder="Check In"
+        dateToPlaceholder="Check Out"
         :price="form.price"
         :rating="form.rating"
         :reviewsCount="form.reviewsCount"
@@ -14,7 +14,7 @@
       ></BookingForm>
     </div>
     <div class="app-form">
-      {{ form }}
+      <!-- {{ form }} -->
     </div>
   </div>
 </template>

@@ -5,8 +5,8 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isToday from 'dayjs/plugin/isToday'
 import localeData from 'dayjs/plugin/localeData'
-import updateLocale from 'dayjs/plugin/updateLocale'
 import objectSupport from 'dayjs/plugin/objectSupport'
+// import updateLocale from 'dayjs/plugin/updateLocale'
 
 import { CALENDAR_DAYS_COUNT } from './helpers'
 
@@ -16,8 +16,8 @@ dayjs.extend(isSameOrBefore)
 dayjs.extend(isToday)
 dayjs.extend(localeData)
 dayjs.extend(objectSupport)
-dayjs.extend(updateLocale)
-dayjs.locale('pl')
+// dayjs.extend(updateLocale)
+// dayjs.locale('pl')
 
 export default {
   props: {
