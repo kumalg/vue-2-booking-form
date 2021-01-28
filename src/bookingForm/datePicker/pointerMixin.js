@@ -41,8 +41,10 @@ export default {
     pointerLeft () {
       if (this.pointer !== null) {
         if (this.pointer < 1) {
-          this.previousMonth()
-          this.pointer = CALENDAR_DAYS_COUNT - 1
+          if (this.canGoToPreviousMonth) {
+            this.previousMonth()
+            this.pointer = CALENDAR_DAYS_COUNT - 1
+          }
         } else {
           this.pointer -= 1
         }
@@ -53,8 +55,10 @@ export default {
     pointerRight () {
       if (this.pointer !== null) {
         if (this.pointer >= CALENDAR_DAYS_COUNT - 1) {
-          this.nextMonth()
-          this.pointer = 0
+          if (this.canGoToNextMonth) {
+            this.nextMonth()
+            this.pointer = 0
+          }
         } else {
           this.pointer += 1
         }
