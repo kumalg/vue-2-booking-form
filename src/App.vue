@@ -83,11 +83,11 @@ export default {
         dateTo: null
       },
       props2: {
-        dateFromPlaceholder: 'Check In',
-        dateToPlaceholder: 'Check Out',
-        price: 298,
-        rating: 3.5,
-        reviewsCount: 123,
+        dateFromPlaceholder: 'Date from',
+        dateToPlaceholder: 'Date to',
+        price: 499.99,
+        rating: 4.5,
+        reviewsCount: 6436,
         minDate: {
           year: 2020,
           month: 12,
