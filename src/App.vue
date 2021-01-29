@@ -20,8 +20,8 @@
     <div class="app-booking-form">
       <BookingForm
         v-model="form2"
-        :dateFromPlaceholder="props.dateFromPlaceholder"
-        :dateToPlaceholder="props.dateToPlaceholder"
+        :dateFromPlaceholder="props2.dateFromPlaceholder"
+        :dateToPlaceholder="props2.dateToPlaceholder"
         :price="props2.price"
         :rating="props2.rating"
         :reviewsCount="props2.reviewsCount"
