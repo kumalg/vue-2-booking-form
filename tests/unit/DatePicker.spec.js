@@ -36,55 +36,51 @@ describe('DatePicker.vue', () => {
   })
 
   it('should show "date from" placeholder when "date from" is not set', () => {
-    var parent = mount({
-      template: '<div> <date-picker dateFromPlaceholder="Check In"></date-picker> </div>',
-      components: { 'date-picker': DatePicker }
+    const wrapper = mount(DatePicker, {
+      propsData: {
+        dateFromPlaceholder: 'Check In'
+      }
     })
-    expect(parent.find('.date-picker__input').text()).toMatch(/Check In/)
+    expect(wrapper.find('.date-picker__input').text()).toMatch(/Check In/)
   })
   it('should show "date to" placeholder when "date to" is not set', () => {
-    var parent = mount({
-      template: '<div> <date-picker dateToPlaceholder="Check Out"></date-picker> </div>',
-      components: { 'date-picker': DatePicker }
+    const wrapper = mount(DatePicker, {
+      propsData: {
+        dateToPlaceholder: 'Check Out'
+      }
     })
-    expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/Check Out/)
+    expect(wrapper.findAll('.date-picker__input').at(1).text()).toMatch(/Check Out/)
   })
 
   it('should show "date from" formatted date when "date from" is set', () => {
-    var parent = mount({
-      data () {
-        return {
-          model: {
-            dateFrom: {
-              year: 2020,
-              month: 10,
-              day: 10
-            }
+    const wrapper = mount(DatePicker, {
+      propsData: {
+        dateFromPlaceholder: 'Check In',
+        value: {
+          dateFrom: {
+            year: 2020,
+            month: 10,
+            day: 10
           }
         }
-      },
-      template: '<div> <date-picker v-model="model" dateFromPlaceholder="Check In"></date-picker> </div>',
-      components: { 'date-picker': DatePicker }
+      }
     })
-    expect(parent.find('.date-picker__input').text()).toMatch(/10 Oct 2020/)
+    expect(wrapper.find('.date-picker__input').text()).toMatch(/10 Oct 2020/)
   })
-  it('should show "date to" formatted date when "date tp" is set', () => {
-    var parent = mount({
-      data () {
-        return {
-          model: {
-            dateTo: {
-              year: 2020,
-              month: 10,
-              day: 10
-            }
+  it('should show "date to" formatted date when "date to" is set', () => {
+    const wrapper = mount(DatePicker, {
+      propsData: {
+        dateToPlaceholder: 'Check Out',
+        value: {
+          dateTo: {
+            year: 2020,
+            month: 10,
+            day: 10
           }
         }
-      },
-      template: '<div> <date-picker v-model="model" dateToPlaceholder="Check Out"></date-picker> </div>',
-      components: { 'date-picker': DatePicker }
+      }
     })
-    expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/10 Oct 2020/)
+    expect(wrapper.findAll('.date-picker__input').at(1).text()).toMatch(/10 Oct 2020/)
   })
 
   it('should clear "date from" value when clear button clicked', async () => {
@@ -105,8 +101,7 @@ describe('DatePicker.vue', () => {
     })
     expect(parent.findAll('.date-picker__input').at(0).text()).toMatch(/10 Oct 2020/)
 
-    parent.findAll('.date-picker__input__clear').at(0).trigger('click')
-    await parent.vm.$nextTick()
+    await parent.findAll('.date-picker__input__clear').at(0).trigger('click')
 
     expect(parent.findAll('.date-picker__input').at(0).text()).toMatch(/Check In/)
   })
@@ -128,8 +123,7 @@ describe('DatePicker.vue', () => {
     })
     expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/10 Oct 2020/)
 
-    parent.findAll('.date-picker__input__clear').at(1).trigger('click')
-    await parent.vm.$nextTick()
+    await parent.findAll('.date-picker__input__clear').at(1).trigger('click')
 
     expect(parent.findAll('.date-picker__input').at(1).text()).toMatch(/Check Out/)
   })
